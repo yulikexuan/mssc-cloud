@@ -15,6 +15,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -47,20 +48,26 @@ public class BeerInventoryServiceRestTemplate implements IBeerInventoryService {
 
         log.debug("Calling Inventory Service");
 
-        ResponseEntity<List<BeerInventoryDto>> responseEntity =
-                restTemplate.exchange(
-                        beerInventoryServiceHost + INVENTORY_PATH,
-                        HttpMethod.GET, null,
-                        new ParameterizedTypeReference<List<BeerInventoryDto>>() {},
-                        (Object) beerId);
+        int sum = -1;
 
-        //sum from inventory list
-        Integer onHand = Objects.requireNonNull(responseEntity.getBody())
-                .stream()
-                .mapToInt(BeerInventoryDto::getQuantityOnHand)
-                .sum();
+        try {
+            ResponseEntity<List<BeerInventoryDto>> responseEntity =
+                    restTemplate.exchange(
+                            beerInventoryServiceHost + INVENTORY_PATH,
+                            HttpMethod.GET, null,
+                            new ParameterizedTypeReference<List<BeerInventoryDto>>() {},
+                            (Object) beerId);
 
-        return onHand;
+            //sum from inventory list
+            sum = Objects.requireNonNull(responseEntity.getBody())
+                    .stream()
+                    .mapToInt(BeerInventoryDto::getQuantityOnHand)
+                    .sum();
+        } catch (RestClientException e) {
+            log.error(">>>>>>> Failed to retrieve inventory.");
+        }
+
+        return sum;
     }
 
     public void setBeerInventoryServiceHost(String beerInventoryServiceHost) {
