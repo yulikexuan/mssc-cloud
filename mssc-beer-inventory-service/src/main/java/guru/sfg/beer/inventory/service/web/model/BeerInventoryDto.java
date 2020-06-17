@@ -13,8 +13,7 @@ import java.util.UUID;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Builder @AllArgsConstructor
 public class BeerInventoryDto {
 
     private UUID id;
@@ -22,5 +21,6 @@ public class BeerInventoryDto {
     private OffsetDateTime lastModifiedDate;
 
     private UUID beerId;
+    private String upc;
     private Integer quantityOnHand;
 }

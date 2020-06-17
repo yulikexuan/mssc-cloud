@@ -1,5 +1,6 @@
 package guru.sfg.beer.inventory.service.web.controllers;
 
+import com.google.common.collect.ImmutableList;
 import guru.sfg.beer.inventory.service.repositories.BeerInventoryRepository;
 import guru.sfg.beer.inventory.service.web.mappers.BeerInventoryMapper;
 import guru.sfg.beer.inventory.service.web.model.BeerInventoryDto;
@@ -31,6 +32,6 @@ public class BeerInventoryController {
         return beerInventoryRepository.findAllByBeerId(beerId)
                 .stream()
                 .map(beerInventoryMapper::beerInventoryToBeerInventoryDto)
-                .collect(Collectors.toList());
+                .collect(ImmutableList.toImmutableList());
     }
 }
