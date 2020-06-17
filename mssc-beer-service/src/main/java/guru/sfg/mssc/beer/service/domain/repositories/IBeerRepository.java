@@ -14,6 +14,10 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 
+/*
+ * https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods.query-creation
+ * https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation
+ */
 @Repository
 public interface IBeerRepository extends JpaRepository<Beer, UUID> {
 

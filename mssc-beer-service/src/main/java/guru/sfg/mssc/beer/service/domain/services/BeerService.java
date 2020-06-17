@@ -4,6 +4,8 @@
 package guru.sfg.mssc.beer.service.domain.services;
 
 
+import com.google.common.collect.ImmutableList;
+import guru.sfg.mssc.beer.service.commons.IExecutorServiceFactory;
 import guru.sfg.mssc.beer.service.domain.model.Beer;
 import guru.sfg.mssc.beer.service.domain.repositories.IBeerRepository;
 import guru.sfg.mssc.beer.service.web.controller.NotFoundException;
@@ -15,10 +17,16 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -27,57 +35,44 @@ import java.util.stream.Collectors;
 public class BeerService implements IBeerService {
 
     private final IBeerRepository beerRepository;
+    private final IBeerRepositoryProxy beerRepositoryProxy;
     private final IBeerMapper beerMapper;
+    private final ExecutorService executorService;
+
+    private final Map<Boolean, Function<Page<Beer>, BeerPagedList>> pageToDtoFuncs;
 
     @Autowired
-    public BeerService(IBeerRepository beerRepository, IBeerMapper beerMapper) {
+    public BeerService(IBeerRepository beerRepository,
+                       IBeerMapper beerMapper,
+                       IBeerRepositoryProxy beerRepositoryProxy,
+                       IExecutorServiceFactory executorServiceFactory) {
+
         this.beerRepository = beerRepository;
         this.beerMapper = beerMapper;
+        this.beerRepositoryProxy = beerRepositoryProxy;
+
+        this.executorService = executorServiceFactory.newExitingExecutorService(
+                10, 10, 1000L,
+                1000);
+
+        this.pageToDtoFuncs = Map.of(
+                true, this::getBeerDtoWithInventoryFromBeerPage,
+                false, this::getBeerDtoFromBeerPage);
     }
 
     @Override
-    public BeerPagedList listBeers(
-            String beerName, BeerStyleEnum beerStyle,
+    public BeerPagedList listBeers(String beerName, BeerStyleEnum beerStyle,
             PageRequest pageRequest, Boolean showInventoryOnHand) {
 
         BeerPagedList beerPagedList;
-        Page<Beer> beerPage;
 
-        if (!StringUtils.isEmpty(beerName) && !StringUtils.isEmpty(beerStyle)) {
-            //search both
-            beerPage = beerRepository.findAllByBeerNameAndBeerStyle(
-                    beerName, beerStyle, pageRequest);
-        } else if (!StringUtils.isEmpty(beerName) && StringUtils.isEmpty(beerStyle)) {
-            //search beer_service name
-            beerPage = beerRepository.findAllByBeerName(beerName, pageRequest);
-        } else if (StringUtils.isEmpty(beerName) && !StringUtils.isEmpty(beerStyle)) {
-            //search beer_service style
-            beerPage = beerRepository.findAllByBeerStyle(beerStyle, pageRequest);
-        } else {
-            beerPage = beerRepository.findAll(pageRequest);
-        }
+        Page<Beer> beerPage = this.beerRepositoryProxy.findAllByBeerNameAndBeerStyle(
+                this.beerRepository, beerName, beerStyle, pageRequest);
 
-        if (showInventoryOnHand){
-            beerPagedList = new BeerPagedList(beerPage
-                    .getContent()
-                    .stream()
-                    .map(beerMapper::beerToBeerDtoWithInventory)
-                    .collect(Collectors.toList()),
-                    PageRequest
-                            .of(beerPage.getPageable().getPageNumber(),
-                                    beerPage.getPageable().getPageSize()),
-                    beerPage.getTotalElements());
-        } else {
-            beerPagedList = new BeerPagedList(beerPage
-                    .getContent()
-                    .stream()
-                    .map(beerMapper::beerToBeerDto)
-                    .collect(Collectors.toList()),
-                    PageRequest
-                            .of(beerPage.getPageable().getPageNumber(),
-                                    beerPage.getPageable().getPageSize()),
-                    beerPage.getTotalElements());
-        }
+        Function<Page<Beer>, BeerPagedList> mappingFunc =
+                this.pageToDtoFuncs.get(showInventoryOnHand);
+
+        beerPagedList = mappingFunc.apply(beerPage);
 
         return beerPagedList;
     }
@@ -112,6 +107,44 @@ public class BeerService implements IBeerService {
         beer.setUpc(beerDto.getUpc());
 
         return this.beerMapper.beerToBeerDto(beer);
+    }
+
+    BeerPagedList getBeerDtoFromBeerPage(@NonNull Page<Beer> beerPage) {
+
+        List<BeerDto> beerDtoList = beerPage.getContent().stream()
+                .map(beerMapper::beerToBeerDto)
+                .collect(ImmutableList.toImmutableList());
+
+        Pageable srcPageable = beerPage.getPageable();
+        Pageable pageable = PageRequest.of(srcPageable.getPageNumber(),
+                srcPageable.getPageSize());
+
+        long total = beerPage.getTotalElements();
+
+        return new BeerPagedList(beerDtoList, pageable, total);
+    }
+
+    BeerPagedList getBeerDtoWithInventoryFromBeerPage(@NonNull Page<Beer> beerPage) {
+
+        List<CompletableFuture<BeerDto>> beerDtoFutures =
+                beerPage.getContent().stream()
+                        .map(beer -> {
+                            return CompletableFuture.supplyAsync(
+                                    () -> beerMapper.beerToBeerDtoWithInventory(beer),
+                                    this.executorService);
+                        }).collect(ImmutableList.toImmutableList());
+
+        List<BeerDto> beerDtoList = beerDtoFutures.stream()
+                .map(CompletableFuture::join)
+                .collect(ImmutableList.toImmutableList());
+
+        Pageable srcPageable = beerPage.getPageable();
+        Pageable pageable = PageRequest.of(srcPageable.getPageNumber(),
+                srcPageable.getPageSize());
+
+        long total = beerPage.getTotalElements();
+
+        return new BeerPagedList(beerDtoList, pageable, total);
     }
 
     private Beer findBeerById(@NonNull UUID id) {

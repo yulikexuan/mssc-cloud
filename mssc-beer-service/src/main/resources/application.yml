@@ -9,6 +9,7 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password: password
+    initialization-mode: EMBEDDED
   h2:
     console:
       enabled: true

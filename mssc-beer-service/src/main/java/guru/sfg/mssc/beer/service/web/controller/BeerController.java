@@ -22,8 +22,8 @@ import java.util.UUID;
 @RequestMapping("/api/v1/beer")
 public class BeerController {
 
-    private static final Integer DEFAULT_PAGE_NUMBER = 0;
-    private static final Integer DEFAULT_PAGE_SIZE = 25;
+    static final Integer DEFAULT_PAGE_NUMBER = 0;
+    static final Integer DEFAULT_PAGE_SIZE = 10;
 
     private final IBeerService beerService;
 
@@ -34,16 +34,11 @@ public class BeerController {
 
     @GetMapping
     public ResponseEntity<BeerPagedList> listBeers(
-            @RequestParam(value = "pageNumber", required = false)
-                    Integer pageNumber,
-            @RequestParam(value = "pageSize", required = false)
-                    Integer pageSize,
-            @RequestParam(value = "beerName", required = false)
-                    String beerName,
-            @RequestParam(value = "beerStyle", required = false)
-                    BeerStyleEnum beerStyle,
-            @RequestParam(value = "showInventoryOnHand", required = false)
-                    Boolean showInventoryOnHand) {
+            @RequestParam(value = "pageNumber", required = false) Integer pageNumber,
+            @RequestParam(value = "pageSize", required = false) Integer pageSize,
+            @RequestParam(value = "beerName", required = false) String beerName,
+            @RequestParam(value = "beerStyle", required = false) BeerStyleEnum beerStyle,
+            @RequestParam(value = "showInventoryOnHand", required = false) Boolean showInventoryOnHand) {
 
         if (showInventoryOnHand == null) {
             showInventoryOnHand = false;
@@ -57,7 +52,8 @@ public class BeerController {
             pageSize = DEFAULT_PAGE_SIZE;
         }
 
-        BeerPagedList beerList = beerService.listBeers(beerName, beerStyle, PageRequest.of(pageNumber, pageSize), showInventoryOnHand);
+        BeerPagedList beerList = beerService.listBeers(beerName, beerStyle,
+                PageRequest.of(pageNumber, pageSize), showInventoryOnHand);
 
         return new ResponseEntity<>(beerList, HttpStatus.OK);
     }

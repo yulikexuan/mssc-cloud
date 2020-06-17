@@ -4,8 +4,10 @@
 package guru.sfg.mssc.beer.service.domain.services.inventory;
 
 
+import guru.sfg.mssc.beer.service.config.PropertiesConfiguration;
 import guru.sfg.mssc.beer.service.web.model.inventory.BeerInventoryDto;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -22,7 +24,6 @@ import java.util.UUID;
 
 @Slf4j
 @Component
-@ConfigurationProperties(prefix = "sfg.brewery", ignoreUnknownFields = true)
 public class BeerInventoryServiceRestTemplate implements IBeerInventoryService {
 
     public static final String INVENTORY_PATH = "/api/v1/beer/{beerId}/inventory";
@@ -31,14 +32,14 @@ public class BeerInventoryServiceRestTemplate implements IBeerInventoryService {
 
     private String beerInventoryServiceHost;
 
+    @Autowired
     public BeerInventoryServiceRestTemplate(
-            RestTemplateBuilder restTemplateBuilder,
-            @Value("${sfg.brewery.inventory-user}") String inventoryUser,
-            @Value("${sfg.brewery.inventory-password}")String inventoryPassword) {
+            PropertiesConfiguration.SfgBreweryProperties sfgBreweryProperties,
+            RestTemplateBuilder restTemplateBuilder) {
 
-        this.restTemplate = restTemplateBuilder
-                .basicAuthentication(inventoryUser, inventoryPassword)
-                .build();
+        this.restTemplate = restTemplateBuilder.build();
+        this.beerInventoryServiceHost =
+                sfgBreweryProperties.getBeerInventoryServiceHost();
     }
 
     @Override
