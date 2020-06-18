@@ -25,7 +25,7 @@ public interface IBeerService {
     BeerPagedList listBeers(String beerName, BeerStyleEnum beerStyle,
                             PageRequest pageRequest, Boolean showInventoryOnHand);
 
-    BeerDto getById(UUID id);
+    BeerDto getById(UUID id, boolean showInventoryOnHand);
 
     BeerDto saveNewBeer(BeerDto beerDto);
 

@@ -78,12 +78,11 @@ public class BeerService implements IBeerService {
     }
 
     @Override
-    public BeerDto getById(@NonNull UUID id) {
-
+    public BeerDto getById(@NonNull UUID id, boolean showInventoryOnHand) {
         Beer beer = this.findBeerById(id);
-        BeerDto beerDto = this.beerMapper.beerToBeerDto(beer);
-
-        return beerDto;
+        return showInventoryOnHand ?
+                this.mapBeerToBeerDtoWithInventory(beer).join() :
+                this.beerMapper.beerToBeerDto(beer);
     }
 
     @Override
@@ -128,11 +127,8 @@ public class BeerService implements IBeerService {
 
         List<CompletableFuture<BeerDto>> beerDtoFutures =
                 beerPage.getContent().stream()
-                        .map(beer -> {
-                            return CompletableFuture.supplyAsync(
-                                    () -> beerMapper.beerToBeerDtoWithInventory(beer),
-                                    this.executorService);
-                        }).collect(ImmutableList.toImmutableList());
+                        .map(this::mapBeerToBeerDtoWithInventory)
+                        .collect(ImmutableList.toImmutableList());
 
         List<BeerDto> beerDtoList = beerDtoFutures.stream()
                 .map(CompletableFuture::join)
@@ -152,6 +148,13 @@ public class BeerService implements IBeerService {
                 .orElseThrow(() -> new NotFoundException(
                         String.format("There is not Beer with ID %s",
                                 id.toString())));
+    }
+
+    private CompletableFuture<BeerDto> mapBeerToBeerDtoWithInventory(Beer beer) {
+        return CompletableFuture
+                .supplyAsync(() -> this.beerMapper.beerToBeerDtoWithInventory(beer),
+                        this.executorService)
+                .exceptionally(e -> this.beerMapper.beerToBeerDto(beer));
     }
 
 }///:~

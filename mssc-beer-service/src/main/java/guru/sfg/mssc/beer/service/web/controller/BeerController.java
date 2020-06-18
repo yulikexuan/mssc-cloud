@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -59,8 +60,16 @@ public class BeerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BeerDto> getBeerById(@PathVariable("id") UUID id) {
-        BeerDto beerDto = this.beerService.getById(id);
+    public ResponseEntity<BeerDto> getBeerById(
+            @PathVariable("id") UUID id,
+            @RequestParam(value = "showInventoryOnHand", required = false)
+                    Boolean showInventoryOnHand) {
+
+        if (Objects.isNull(showInventoryOnHand)) {
+            showInventoryOnHand = false;
+        }
+
+        BeerDto beerDto = this.beerService.getById(id, showInventoryOnHand);
         return new ResponseEntity<>(beerDto, HttpStatus.OK);
     }
 

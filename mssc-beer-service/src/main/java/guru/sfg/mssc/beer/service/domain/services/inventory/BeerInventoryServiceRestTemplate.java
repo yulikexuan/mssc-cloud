@@ -5,6 +5,7 @@ package guru.sfg.mssc.beer.service.domain.services.inventory;
 
 
 import guru.sfg.mssc.beer.service.config.PropertiesConfiguration;
+import guru.sfg.mssc.beer.service.web.controller.NotFoundException;
 import guru.sfg.mssc.beer.service.web.model.inventory.BeerInventoryDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,7 @@ public class BeerInventoryServiceRestTemplate implements IBeerInventoryService {
                     .sum();
         } catch (RestClientException e) {
             log.error(">>>>>>> Failed to retrieve inventory.");
+            throw new NotFoundException("There is no inventory data available.");
         }
 
         return sum;
