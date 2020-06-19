@@ -14,7 +14,9 @@ import guru.sfg.mssc.beer.service.web.model.BeerDto;
 import guru.sfg.mssc.beer.service.web.model.BeerPagedList;
 import guru.sfg.mssc.beer.service.web.model.BeerStyleEnum;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +33,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 
+@Slf4j
 @Service
 public class BeerService implements IBeerService {
 
@@ -61,8 +64,11 @@ public class BeerService implements IBeerService {
     }
 
     @Override
+    @Cacheable(cacheNames = "beerListCache", condition = "#showInventoryOnHand == false")
     public BeerPagedList listBeers(String beerName, BeerStyleEnum beerStyle,
             PageRequest pageRequest, Boolean showInventoryOnHand) {
+
+        log.info(">>>>>>> [API - List Beers] was called.");
 
         BeerPagedList beerPagedList;
 
@@ -78,8 +84,11 @@ public class BeerService implements IBeerService {
     }
 
     @Override
-    public BeerDto getById(@NonNull UUID id, boolean showInventoryOnHand) {
-        Beer beer = this.findBeerById(id);
+    @Cacheable(cacheNames = "beerCache", key = "#beerId",
+            condition = "#showInventoryOnHand == false")
+    public BeerDto getById(@NonNull UUID beerId, boolean showInventoryOnHand) {
+        log.info(">>>>>>> [API - Get Beer by ID] was called.");
+        Beer beer = this.findBeerById(beerId);
         return showInventoryOnHand ?
                 this.mapBeerToBeerDtoWithInventory(beer).join() :
                 this.beerMapper.beerToBeerDto(beer);

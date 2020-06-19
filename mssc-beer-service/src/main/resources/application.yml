@@ -13,6 +13,11 @@ spring:
   h2:
     console:
       enabled: true
+# Cache Setup
+  cache:
+    jcache:
+      config: classpath:ehcache.xml
+# Service Properties
 sfg:
   brewery:
     beer-inventory-service-host: http://localhost:8083
