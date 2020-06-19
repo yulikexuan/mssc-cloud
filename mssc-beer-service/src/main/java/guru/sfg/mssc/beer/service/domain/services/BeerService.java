@@ -89,6 +89,21 @@ public class BeerService implements IBeerService {
     public BeerDto getById(@NonNull UUID beerId, boolean showInventoryOnHand) {
         log.info(">>>>>>> [API - Get Beer by ID] was called.");
         Beer beer = this.findBeerById(beerId);
+        return this.mapBeerToDto(beer, showInventoryOnHand);
+    }
+
+    @Override
+    @Cacheable(cacheNames = "beerUpcCache", key = "#upc",
+            condition = "#showInventoryOnHand == false")
+    public BeerDto getByUpc(@NonNull String upc, boolean showInventoryOnHand) {
+        log.info(">>>>>>> [API - Get Beer by UPC] was called.");
+        Beer beer = this.findBeerByUpc(upc);
+        return this.mapBeerToDto(beer, showInventoryOnHand);
+    }
+
+    private BeerDto mapBeerToDto(@NonNull Beer beer,
+                                 @NonNull boolean showInventoryOnHand) {
+
         return showInventoryOnHand ?
                 this.mapBeerToBeerDtoWithInventory(beer).join() :
                 this.beerMapper.beerToBeerDto(beer);
@@ -157,6 +172,13 @@ public class BeerService implements IBeerService {
                 .orElseThrow(() -> new NotFoundException(
                         String.format("There is not Beer with ID %s",
                                 id.toString())));
+    }
+
+    private Beer findBeerByUpc(@NonNull String upc) {
+        return this.beerRepository.findByUpc(upc)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("There is no Beer with UPC %s", upc)));
+
     }
 
     private CompletableFuture<BeerDto> mapBeerToBeerDtoWithInventory(Beer beer) {

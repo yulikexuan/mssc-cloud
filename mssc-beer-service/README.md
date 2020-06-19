@@ -5,8 +5,14 @@
 ### Get Beer By Id with Inventory Data
 curl -s -w '\n\nTotal: %{time_total} Seconds\n' http://localhost:8081/api/v1/beer/026cc3c8-3a0c-4083-a05b-e908048c1b08?showInventoryOnHand=true
 
+### Get Beer By UPC with Inventory Data
+curl -s -w '\n\nTotal: %{time_total} Seconds\n' http://localhost:8081/api/v1/upcbeer/0631234200036?showInventoryOnHand=true
+
 ### Get Beer By Id without Inventory Data
 curl -s -w '\n\nTotal: %{time_total} Seconds\n' http://localhost:8081/api/v1/beer/026cc3c8-3a0c-4083-a05b-e908048c1b08
+
+### Get Beer By UPC without Inventory Data
+curl -s -w '\n\nTotal: %{time_total} Seconds\n' http://localhost:8081/api/v1/upcbeer/0071990316006
 
 ## Resources
 - [cURL - Write Out] - https://ec.haxx.se/usingcurl/usingcurl-verbose/usingcurl-writeout

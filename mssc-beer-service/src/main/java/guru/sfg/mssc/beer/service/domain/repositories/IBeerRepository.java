@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
+import java.util.Optional;
 
 
 /*
@@ -28,6 +29,6 @@ public interface IBeerRepository extends JpaRepository<Beer, UUID> {
     Page<Beer> findAllByBeerNameAndBeerStyle(
             String beerName, BeerStyleEnum beerStyle, Pageable pageable);
 
-    Beer findByUpc(String upc);
+    Optional<Beer> findByUpc(String upc);
 
 }///:~

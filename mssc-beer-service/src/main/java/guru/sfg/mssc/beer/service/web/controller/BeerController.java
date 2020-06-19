@@ -20,7 +20,7 @@ import java.util.UUID;
 
 
 @RestController
-@RequestMapping("/api/v1/beer")
+@RequestMapping("/api/v1")
 public class BeerController {
 
     static final Integer DEFAULT_PAGE_NUMBER = 0;
@@ -33,7 +33,7 @@ public class BeerController {
         this.beerService = beerService;
     }
 
-    @GetMapping(produces = {"application/json"})
+    @GetMapping(path = "/beer", produces = {"application/json"})
     public ResponseEntity<BeerPagedList> listBeers(
             @RequestParam(value = "pageNumber", required = false) Integer pageNumber,
             @RequestParam(value = "pageSize", required = false) Integer pageSize,
@@ -59,7 +59,7 @@ public class BeerController {
         return new ResponseEntity<>(beerList, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/beer/{id}")
     public ResponseEntity<BeerDto> getBeerById(
             @PathVariable("id") UUID id,
             @RequestParam(value = "showInventoryOnHand", required = false)
@@ -73,14 +73,28 @@ public class BeerController {
         return new ResponseEntity<>(beerDto, HttpStatus.OK);
     }
 
-    @PostMapping
+    @GetMapping("/upcbeer/{upc}")
+    public ResponseEntity<BeerDto> getBeerByUpc(
+            @PathVariable("upc") String upc,
+            @RequestParam(value = "showInventoryOnHand", required = false)
+                    Boolean showInventoryOnHand) {
+
+        if (Objects.isNull(showInventoryOnHand)) {
+            showInventoryOnHand = false;
+        }
+
+        BeerDto beerDto = this.beerService.getByUpc(upc, showInventoryOnHand);
+        return new ResponseEntity<>(beerDto, HttpStatus.OK);
+    }
+
+    @PostMapping(path = "/beer")
     public ResponseEntity saveNewBeer(@Valid @RequestBody BeerDto beerDto) {
 
         return new ResponseEntity(this.beerService.saveNewBeer(beerDto),
                 HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/beer/{id}")
     public ResponseEntity updateBeerById(
             @PathVariable("id") UUID id, @Valid @RequestBody BeerDto beerDto) {
 
