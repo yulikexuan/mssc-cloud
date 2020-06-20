@@ -55,7 +55,7 @@ public class BeerService implements IBeerService {
         this.beerRepositoryProxy = beerRepositoryProxy;
 
         this.executorService = executorServiceFactory.newExitingExecutorService(
-                10, 10, 1000L,
+                5, 5, 1000L,
                 1000);
 
         this.pageToDtoFuncs = Map.of(

@@ -4,6 +4,7 @@ package guru.sfg.beer.order.service.web.controllers;
 import guru.sfg.beer.order.service.services.BeerOrderService;
 import guru.sfg.beer.order.service.web.model.BeerOrderDto;
 import guru.sfg.beer.order.service.web.model.BeerOrderPagedList;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -11,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 
-@RequestMapping("/api/v1/customers/{customerId}/")
 @RestController
+@RequestMapping("/api/v1/customers/{customerId}/")
 public class BeerOrderController {
 
     private static final Integer DEFAULT_PAGE_NUMBER = 0;
@@ -20,6 +21,7 @@ public class BeerOrderController {
 
     private final BeerOrderService beerOrderService;
 
+    @Autowired
     public BeerOrderController(BeerOrderService beerOrderService) {
         this.beerOrderService = beerOrderService;
     }
@@ -29,7 +31,7 @@ public class BeerOrderController {
                                          @RequestParam(value = "pageNumber", required = false) Integer pageNumber,
                                          @RequestParam(value = "pageSize", required = false) Integer pageSize){
 
-        if (pageNumber == null || pageNumber < 0){
+        if (pageNumber == null || pageNumber < 0) {
             pageNumber = DEFAULT_PAGE_NUMBER;
         }
 

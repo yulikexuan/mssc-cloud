@@ -33,7 +33,9 @@ public class BeerOrderServiceImpl implements BeerOrderService {
 
     public BeerOrderServiceImpl(BeerOrderRepository beerOrderRepository,
                                 CustomerRepository customerRepository,
-                                BeerOrderMapper beerOrderMapper, ApplicationEventPublisher publisher) {
+                                BeerOrderMapper beerOrderMapper,
+                                ApplicationEventPublisher publisher) {
+
         this.beerOrderRepository = beerOrderRepository;
         this.customerRepository = customerRepository;
         this.beerOrderMapper = beerOrderMapper;
@@ -42,11 +44,13 @@ public class BeerOrderServiceImpl implements BeerOrderService {
 
     @Override
     public BeerOrderPagedList listOrders(UUID customerId, Pageable pageable) {
+
         Optional<Customer> customerOptional = customerRepository.findById(customerId);
 
         if (customerOptional.isPresent()) {
-            Page<BeerOrder> beerOrderPage =
-                    beerOrderRepository.findAllByCustomer(customerOptional.get(), pageable);
+
+            Page<BeerOrder> beerOrderPage = beerOrderRepository.findAllByCustomer(
+                    customerOptional.get(), pageable);
 
             return new BeerOrderPagedList(beerOrderPage
                     .stream()
@@ -55,6 +59,7 @@ public class BeerOrderServiceImpl implements BeerOrderService {
                     beerOrderPage.getPageable().getPageNumber(),
                     beerOrderPage.getPageable().getPageSize()),
                     beerOrderPage.getTotalElements());
+
         } else {
             return null;
         }
@@ -63,7 +68,9 @@ public class BeerOrderServiceImpl implements BeerOrderService {
     @Transactional
     @Override
     public BeerOrderDto placeOrder(UUID customerId, BeerOrderDto beerOrderDto) {
-        Optional<Customer> customerOptional = customerRepository.findById(customerId);
+
+        Optional<Customer> customerOptional =
+                customerRepository.findById(customerId);
 
         if (customerOptional.isPresent()) {
             BeerOrder beerOrder = beerOrderMapper.dtoToBeerOrder(beerOrderDto);
@@ -99,7 +106,8 @@ public class BeerOrderServiceImpl implements BeerOrderService {
         beerOrderRepository.save(beerOrder);
     }
 
-    private BeerOrder getOrder(UUID customerId, UUID orderId){
+    private BeerOrder getOrder(UUID customerId, UUID orderId) {
+
         Optional<Customer> customerOptional = customerRepository.findById(customerId);
 
         if(customerOptional.isPresent()){
@@ -115,6 +123,7 @@ public class BeerOrderServiceImpl implements BeerOrderService {
             }
             throw new RuntimeException("Beer Order Not Found");
         }
+
         throw new RuntimeException("Customer Not Found");
     }
 }
