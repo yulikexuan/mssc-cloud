@@ -15,5 +15,6 @@ curl -s -w '\n\nTotal: %{time_total} Seconds\n' http://localhost:8081/api/v1/bee
 curl -s -w '\n\nTotal: %{time_total} Seconds\n' http://localhost:8081/api/v1/upcbeer/0071990316006
 
 ## Resources
-- [cURL - Write Out] - https://ec.haxx.se/usingcurl/usingcurl-verbose/usingcurl-writeout
-- [cURL - Measure Times] - https://stackoverflow.com/questions/18215389/how-do-i-measure-request-and-response-times-at-once-using-curl
+- [cURL - Write Out](https://ec.haxx.se/usingcurl/usingcurl-verbose/usingcurl-writeout)
+- [cURL - Measure Times](https://stackoverflow.com/questions/18215389/how-do-i-measure-request-and-response-times-at-once-using-curl)
+

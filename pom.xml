@@ -313,6 +313,7 @@
     </build>
     
     <modules>
+        <module>mssc-beer-bom</module>
         <module>mssc-beer-service</module>
         <module>mssc-beer-inventory-service</module>
         <module>mssc-beer-order-service</module>
