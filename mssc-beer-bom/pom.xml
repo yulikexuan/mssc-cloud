@@ -221,6 +221,16 @@
 
     <build>
 
+        <extensions>
+
+            <extension>
+                <groupId>io.packagecloud.maven.wagon</groupId>
+                <artifactId>maven-packagecloud-wagon</artifactId>
+                <version>0.0.6</version>
+            </extension>
+
+        </extensions>
+
         <pluginManagement>
 
             <plugins>
@@ -383,5 +393,14 @@
         </plugins>
 
     </build>
+
+    <distributionManagement>
+
+        <repository>
+            <id>packagecloud.releases</id>
+            <url>packagecloud+https://packagecloud.io/cloudlab/release</url>
+        </repository>
+
+    </distributionManagement>
 
 </project>
