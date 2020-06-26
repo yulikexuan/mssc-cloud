@@ -7,9 +7,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>guru.springframework</groupId>
-        <artifactId>mssc-beer-bom</artifactId>
-        <version>1.0.0</version>
+        <groupId>yulikexuan.spring.cloud</groupId>
+        <artifactId>spring-cloud-parent</artifactId>
+        <version>2020.03</version>
         <relativePath />
     </parent>
 
