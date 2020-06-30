@@ -1,2 +1,5 @@
 DROP DATABASE IF EXISTS beerservice;
+DROP USER IF EXISTS beer_service_guru;
 CREATE DATABASE beerservice WITH ENCODING='UTF8';
+CREATE USER beer_service_guru WITH ENCRYPTED PASSWORD 'password' SUPERUSER;
+GRANT ALL PRIVILEGES ON DATABASE beerservice TO beer_service_guru;
