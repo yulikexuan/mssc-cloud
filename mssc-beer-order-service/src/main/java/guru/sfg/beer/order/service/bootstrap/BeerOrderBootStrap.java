@@ -14,7 +14,7 @@ import java.util.UUID;
  * Created by jt on 2019-06-06.
  */
 @Slf4j
-@Component
+//@Component
 @RequiredArgsConstructor
 public class BeerOrderBootStrap implements CommandLineRunner {
 

@@ -33,6 +33,7 @@ public class Customer extends BaseEntity {
         this.beerOrders = beerOrders;
     }
 
+    @Column(length = 36, columnDefinition = "varchar(36)")
     private String customerName;
 
     @Type(type="org.hibernate.type.UUIDCharType")

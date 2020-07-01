@@ -6,7 +6,7 @@ spring:
       ddl-auto: update
   datasource:
     initialization-mode: always
-    url: jdbc:postgresql://localhost:5432/beer_inventory_service?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    url: jdbc:postgresql://localhost:5432/beer_order_service?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
     driver-class-name: org.postgresql.Driver
-    username: beer_inventory_service_guru
+    username: beer_order_service_guru
     password: password

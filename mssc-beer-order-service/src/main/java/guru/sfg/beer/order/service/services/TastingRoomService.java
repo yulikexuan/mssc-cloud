@@ -8,6 +8,7 @@ import guru.sfg.beer.order.service.repositories.CustomerRepository;
 import guru.sfg.beer.order.service.web.model.BeerOrderDto;
 import guru.sfg.beer.order.service.web.model.BeerOrderLineDto;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,20 +23,27 @@ import java.util.UUID;
 @Slf4j
 public class TastingRoomService {
 
+    static final String[] BEER_UPC_REPO = {
+            BeerOrderBootStrap.BEER_1_UPC,
+            BeerOrderBootStrap.BEER_2_UPC,
+            BeerOrderBootStrap.BEER_3_UPC,
+            BeerOrderBootStrap.BEER_4_UPC,
+            BeerOrderBootStrap.BEER_5_UPC,
+            BeerOrderBootStrap.BEER_6_UPC,
+            BeerOrderBootStrap.BEER_7_UPC,
+    };
+
     private final CustomerRepository customerRepository;
     private final BeerOrderService beerOrderService;
     private final BeerOrderRepository beerOrderRepository;
-    private final List<String> beerUpcs = new ArrayList<>(3);
 
-    public TastingRoomService(CustomerRepository customerRepository, BeerOrderService beerOrderService,
+    public TastingRoomService(CustomerRepository customerRepository,
+                              BeerOrderService beerOrderService,
                               BeerOrderRepository beerOrderRepository) {
+
         this.customerRepository = customerRepository;
         this.beerOrderService = beerOrderService;
         this.beerOrderRepository = beerOrderRepository;
-
-        beerUpcs.add(BeerOrderBootStrap.BEER_1_UPC);
-        beerUpcs.add(BeerOrderBootStrap.BEER_2_UPC);
-        beerUpcs.add(BeerOrderBootStrap.BEER_3_UPC);
     }
 
     // Runs every 30 Munutes
@@ -47,7 +55,7 @@ public class TastingRoomService {
                 customerRepository.findAllByCustomerNameLike(
                         BeerOrderBootStrap.TASTING_ROOM);
 
-        if (customerList.size() == 1){ //should be just one
+        if (customerList.size() == 1) { //should be just one
             doPlaceOrder(customerList.get(0));
         } else {
             log.error("Too many or too few tasting room customers found");
@@ -55,11 +63,12 @@ public class TastingRoomService {
     }
 
     private void doPlaceOrder(Customer customer) {
+
         String beerToOrder = getRandomBeerUpc();
 
         BeerOrderLineDto beerOrderLine = BeerOrderLineDto.builder()
                 .upc(beerToOrder)
-                .orderQuantity(new Random().nextInt(6)) //todo externalize value to property
+                .orderQuantity(new Random().nextInt(6)) // TODO externalize value to property
                 .build();
 
         List<BeerOrderLineDto> beerOrderLineSet = new ArrayList<>();
@@ -76,6 +85,7 @@ public class TastingRoomService {
     }
 
     private String getRandomBeerUpc() {
-        return beerUpcs.get(new Random().nextInt(beerUpcs.size() -0));
+        return BEER_UPC_REPO[RandomUtils.nextInt(0, BEER_UPC_REPO.length)];
     }
+
 }

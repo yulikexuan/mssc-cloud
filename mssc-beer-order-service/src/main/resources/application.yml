@@ -1,20 +1,30 @@
-#logging:
-#  level:
-#    guru: debug
 server:
   port: 8082
-# Config H2 Console
 spring:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
   datasource:
     url: jdbc:h2:mem:testdb;MODE=PostgreSQL
     driver-class-name: org.h2.Driver
     username: sa
     password: password
+    #initialization-mode: EMBEDDED
   h2:
     console:
       enabled: true
+  output:
+    ansi:
+      enabled: detect
+#logging:
+logging:
+  level:
+    # guru: debug
+    org.hibernate:
+      sql: DEBUG
+      type: TRACE
 sfg:
   brewery:
     beer-service-host: http://localhost:8081

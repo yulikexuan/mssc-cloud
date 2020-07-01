@@ -1,3 +1,5 @@
+DELETE FROM beer_inventory;
+
 INSERT INTO beer_inventory (id, beer_id, quantity_on_hand, upc, created_date, last_modified_date, version)
 VALUES ('aae85f58-5a58-46e3-8155-d25f1cd00bcf', '0a818933-087d-47f2-ad83-2f986ed087eb', 30, '0631234200036', CURRENT_TIMESTAMP , CURRENT_TIMESTAMP, 1);
 

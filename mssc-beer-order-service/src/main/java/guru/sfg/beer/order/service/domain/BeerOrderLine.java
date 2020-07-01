@@ -5,7 +5,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import java.sql.Timestamp;
@@ -36,7 +38,10 @@ public class BeerOrderLine extends BaseEntity {
     @ManyToOne
     private BeerOrder beerOrder;
 
+    @Type(type="org.hibernate.type.UUIDCharType")
+    @Column(length = 36, columnDefinition = "varchar")
     private UUID beerId;
+
     private String upc;
     private Integer orderQuantity = 0;
     private Integer quantityAllocated = 0;
