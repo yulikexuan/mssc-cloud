@@ -1,9 +1,10 @@
 spring:
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
     database: postgresql
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQL10Dialect
   datasource:
     initialization-mode: always
     url: jdbc:postgresql://localhost:5432/beer_inventory_service?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
