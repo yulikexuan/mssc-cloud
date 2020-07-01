@@ -32,4 +32,9 @@ logging:
     # guru: debug
     org.hibernate:
         sql: DEBUG
-        type: TRACE
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+#    com.zaxxer.hikari:
+#      HikariConfig: DEBUG

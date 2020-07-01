@@ -11,7 +11,7 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password: password
-    #initialization-mode: EMBEDDED
+    initialization-mode: EMBEDDED
   h2:
     console:
       enabled: true
@@ -24,7 +24,12 @@ logging:
     # guru: debug
     org.hibernate:
       sql: DEBUG
-      type: TRACE
+      type:
+        descriptor:
+          sql:
+            BasicBinder: TRACE
+#    com.zaxxer.hikari:
+#      HikariConfig: DEBUG
 sfg:
   brewery:
     beer-service-host: http://localhost:8081
