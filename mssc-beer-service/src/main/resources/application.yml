@@ -1,6 +1,5 @@
 server:
   port: 8081
-# Config H2 Console
 spring:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
@@ -16,7 +15,7 @@ spring:
   h2:
     console:
       enabled: true
-# Cache Setup
+  # Cache Setup
   cache:
     jcache:
       config: classpath:ehcache.xml

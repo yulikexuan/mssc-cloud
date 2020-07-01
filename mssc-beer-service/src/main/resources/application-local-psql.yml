@@ -1,0 +1,12 @@
+spring:
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+    database: postgresql
+    hibernate:
+      ddl-auto: update
+  datasource:
+    # initialization-mode: always
+    url: jdbc:postgresql://localhost:5432/beerservice?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    driver-class-name: org.postgresql.Driver
+    username: beer_service_guru
+    password: password
