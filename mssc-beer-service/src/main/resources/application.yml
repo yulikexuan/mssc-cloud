@@ -4,6 +4,9 @@ server:
 spring:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
   datasource:
     url: jdbc:h2:mem:testdb;MODE=PostgreSQL
     driver-class-name: org.h2.Driver
@@ -17,10 +20,17 @@ spring:
   cache:
     jcache:
       config: classpath:ehcache.xml
+  output:
+    ansi:
+      enabled: detect
 # Service Properties
 sfg:
   brewery:
     beer-inventory-service-host: http://localhost:8083
 #logging:
-#  level:
-#    guru: debug
+logging:
+  level:
+    # guru: debug
+    org.hibernate:
+        sql: DEBUG
+        type: TRACE
