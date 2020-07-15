@@ -9,8 +9,12 @@ import guru.sfg.mssc.beer.service.web.model.BeerDto;
 
 public class BrewBeerEvent extends BeerEvent {
 
-    public BrewBeerEvent(BeerDto beerDto) {
+    private BrewBeerEvent(BeerDto beerDto) {
         super(beerDto);
+    }
+
+    public static BrewBeerEvent of(BeerDto beerDto) {
+        return new BrewBeerEvent(beerDto);
     }
 
 }///:~
