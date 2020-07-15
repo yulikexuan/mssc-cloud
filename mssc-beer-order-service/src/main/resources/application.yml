@@ -18,6 +18,10 @@ spring:
   output:
     ansi:
       enabled: detect
+  # ActiveMQ-Artemis
+  artemis:
+    user: artemis
+    password: simetraehcapa
 #logging:
 logging:
   level:

@@ -9,13 +9,12 @@
     <parent>
         <groupId>yulikexuan.spring.cloud</groupId>
         <artifactId>spring-cloud-parent</artifactId>
-        <version>2020.03</version>
+        <version>2020.03.01</version>
         <relativePath />
     </parent>
 
     <groupId>com.github.sfg-beer-works</groupId>
     <artifactId>mssc-beer-order-service</artifactId>
-    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>mssc-beer-order-service</name>
     <description>MSSC Beer Order Service</description>
