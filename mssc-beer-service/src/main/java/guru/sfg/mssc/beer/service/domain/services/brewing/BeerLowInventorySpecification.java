@@ -1,10 +1,11 @@
-//: guru.sfg.mssc.beer.service.domain.services.BeerLowInventorySpecification.java
+//: guru.sfg.mssc.beer.service.domain.services.brewing.BeerLowInventorySpecification.java
 
 
-package guru.sfg.mssc.beer.service.domain.services;
+package guru.sfg.mssc.beer.service.domain.services.brewing;
 
 
 import guru.sfg.mssc.beer.service.domain.model.Beer;
+import guru.sfg.mssc.beer.service.domain.services.IBeerSpecification;
 import guru.sfg.mssc.beer.service.domain.services.inventory.IBeerInventoryService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

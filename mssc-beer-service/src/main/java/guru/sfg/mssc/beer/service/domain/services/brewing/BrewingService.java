@@ -1,12 +1,13 @@
-//: guru.sfg.mssc.beer.service.domain.services.BrewingService.java
+//: guru.sfg.mssc.beer.service.domain.services.brewing.BrewingService.java
 
 
-package guru.sfg.mssc.beer.service.domain.services;
+package guru.sfg.mssc.beer.service.domain.services.brewing;
 
 
 import guru.sfg.mssc.beer.service.config.JmsConfig;
 import guru.sfg.mssc.beer.service.domain.model.Beer;
 import guru.sfg.mssc.beer.service.domain.repositories.IBeerRepository;
+import guru.sfg.mssc.beer.service.domain.services.IBeerSpecification;
 import guru.sfg.mssc.beer.service.event.BrewBeerEvent;
 import guru.sfg.mssc.beer.service.web.mapper.IBeerMapper;
 import lombok.NonNull;
