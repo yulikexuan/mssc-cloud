@@ -27,10 +27,15 @@ public class BeerLowInventorySpecification implements IBeerSpecification {
                 beer.getId());
         int minOnHand = beer.getMinOnHand();
 
-        log.info(">>>>>>> The min on-hand should be: {}", minOnHand);
-        log.info(">>>>>>> The inventory on-hand is {} now.", inventoryOnHand);
+        boolean shouldBrew = minOnHand >= inventoryOnHand;
 
-        return minOnHand >= inventoryOnHand;
+        if (shouldBrew) {
+            log.info(">>>>>>> The quantity [min / inventory : {} / {}] : " +
+                            "Sending brewing event ... ...",
+                    minOnHand, inventoryOnHand);
+        }
+
+        return shouldBrew;
     }
 
 }///:~

@@ -25,6 +25,7 @@ public class BrewBeerListener {
     private final JmsTemplate jmsTemplate;
     private final IBeerRepository beerRepository;
 
+    // @Transactional
     @JmsListener(destination = JmsConfig.BREWING_REQUEST_QUEUE_NAME)
     public void listenToBrewBeerEvent(BrewBeerEvent brewBeerEvent) {
 

@@ -11,7 +11,7 @@ VALUES ('2d35a9cd-97d4-4b3f-b1eb-a49377e5573e', '026cc3c8-3a0c-4083-a05b-e908048
 ON CONFLICT DO NOTHING;
 
 INSERT INTO beer_inventory (id, beer_id, quantity_on_hand, upc, created_date, last_modified_date, version)
-VALUES ('fdc41988-40f7-49e5-aef4-eb22e191abc9', 'b36541b8-ad9e-11ea-a64d-0242ac130004', 40, '0072890000224', CURRENT_TIMESTAMP , CURRENT_TIMESTAMP, 1)
+VALUES ('fdc41988-40f7-49e5-aef4-eb22e191abc9', 'b36541b8-ad9e-11ea-a64d-0242ac130004', 7, '0072890000224', CURRENT_TIMESTAMP , CURRENT_TIMESTAMP, 1)
 ON CONFLICT DO NOTHING;
 
 INSERT INTO beer_inventory (id, beer_id, quantity_on_hand, upc, created_date, last_modified_date, version)

@@ -2,7 +2,7 @@ server:
   port: 8081
 spring:
   jpa:
-    show-sql: true
+    show-sql: false
     properties:
       hibernate.format_sql: true
       hibernate.dialect: org.hibernate.dialect.H2Dialect
@@ -31,14 +31,14 @@ sfg:
   brewery:
     beer-inventory-service-host: http://localhost:8083
 #logging:
-logging:
-  level:
-    # guru: debug
-    org.hibernate:
-        sql: DEBUG
-        type:
-          descriptor:
-            sql:
-              BasicBinder: TRACE
+#logging:
+#  level:
+#    guru: debug
+#    org.hibernate:
+#        sql: DEBUG
+#        type:
+#          descriptor:
+#            sql:
+#              BasicBinder: TRACE
 #    com.zaxxer.hikari:
 #      HikariConfig: DEBUG
