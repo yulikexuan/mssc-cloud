@@ -21,7 +21,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -29,8 +28,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -165,6 +162,13 @@ public class BeerService implements IBeerService {
         long total = beerPage.getTotalElements();
 
         return new BeerPagedList(beerDtoList, pageable, total);
+    }
+
+    @Override
+    public int getQuantityToBrew(UUID beerId) {
+        log.info(">>>>>>> [API - Get Beer by ID] was called.");
+        Beer beer = this.findBeerById(beerId);
+        return beer.getQuantityToBrew();
     }
 
     private Beer findBeerById(@NonNull UUID id) {

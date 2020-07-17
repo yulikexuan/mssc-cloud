@@ -32,8 +32,12 @@ curl -s -w '\n\nTotal: %{time_total} Seconds\n' http://localhost:8081/api/v1/upc
 - For Linux: 
   - ``` docker run -it --rm -p 8161:8161 -p 61616:61616 vromero/activemq-artemis ```
 
-### Resources
+### Solution for Tricky Issues
 
+#### Hibernate could not initialize proxy – no Session
+
+
+### Resources
 * https://ec.haxx.se/usingcurl/usingcurl-verbose/usingcurl-writeout[cURL - Write Out]
 * https://stackoverflow.com/questions/18215389/how-do-i-measure-request-and-response-times-at-once-using-curl[cURL - Measure Times]
 

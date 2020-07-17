@@ -5,8 +5,7 @@ package guru.sfg.mssc.beer.service.domain.services.brewing;
 
 
 import guru.sfg.mssc.beer.service.config.JmsConfig;
-import guru.sfg.mssc.beer.service.domain.model.Beer;
-import guru.sfg.mssc.beer.service.domain.repositories.IBeerRepository;
+import guru.sfg.mssc.beer.service.domain.services.IBeerService;
 import guru.sfg.mssc.beer.service.event.BrewBeerEvent;
 import guru.sfg.mssc.beer.service.event.NewBeerInventoryEvent;
 import guru.sfg.mssc.beer.service.web.model.BeerDto;
@@ -23,22 +22,25 @@ import org.springframework.stereotype.Service;
 public class BrewBeerListener {
 
     private final JmsTemplate jmsTemplate;
-    private final IBeerRepository beerRepository;
+    private final IBeerService beerService;
 
-    // @Transactional
+    /*
+     * @Transactional :
+     * Use BeerService here other than adding Transactional annotation
+     * One more thing should be adding a new method to BeerService::getQuantitytoBrew
+     */
     @JmsListener(destination = JmsConfig.BREWING_REQUEST_QUEUE_NAME)
     public void listenToBrewBeerEvent(BrewBeerEvent brewBeerEvent) {
 
         BeerDto beerDto = brewBeerEvent.getBeerDto();
-        Beer beer = this.beerRepository.getOne(beerDto.getId());
+        int quantityToBrew = this.beerService.getQuantityToBrew(beerDto.getId());
 
         // Brewing Beer ... ...
 
-        beerDto.setQuantityOnHand(beer.getQuantityToBrew());
+        beerDto.setQuantityOnHand(quantityToBrew);
 
-        log.info(">>>>>>> Just brewed beer {} / Min on Hand: {} / QQH: {}",
-                beerDto.getBeerName(), beer.getMinOnHand(),
-                beerDto.getQuantityOnHand());
+        log.info(">>>>>>> Just brewed beer {} - QQH: {}",
+                beerDto.getBeerName(), beerDto.getQuantityOnHand());
 
         jmsTemplate.convertAndSend(JmsConfig.NEW_INVENTORY_QUEUE_NAME,
                 new NewBeerInventoryEvent(beerDto));
