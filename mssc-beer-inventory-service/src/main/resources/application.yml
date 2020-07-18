@@ -23,9 +23,10 @@ spring:
     user: artemis
     password: simetraehcapa
 #logging:
-#logging:
-#  level:
-#    guru: debug
+logging:
+  level:
+    guru:
+      sfg: debug
 #    org.hibernate:
 #      sql: DEBUG
 #      type:

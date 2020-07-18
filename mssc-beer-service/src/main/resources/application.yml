@@ -31,9 +31,10 @@ sfg:
   brewery:
     beer-inventory-service-host: http://localhost:8083
 #logging:
-#logging:
-#  level:
-#    guru: debug
+logging:
+  level:
+    guru:
+      sfg: debug
 #    org.hibernate:
 #        sql: DEBUG
 #        type:
