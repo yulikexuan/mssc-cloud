@@ -1,7 +1,7 @@
-//: guru.sfg.mssc.beer.service.event.BrewBeerEvent.java
+//: guru.sfg.mssc.commons.event.BrewBeerEvent.java
 
 
-package guru.sfg.mssc.beer.service.event;
+package guru.sfg.mssc.commons.event;
 
 
 import guru.sfg.mssc.beer.service.web.model.BeerDto;

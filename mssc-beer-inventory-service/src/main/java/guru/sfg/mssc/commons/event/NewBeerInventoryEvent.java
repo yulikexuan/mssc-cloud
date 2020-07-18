@@ -1,10 +1,10 @@
-//: guru.sfg.mssc.beer.service.event.NewBeerInventoryEvent.java
+//: guru.sfg.mssc.commons.event.NewBeerInventoryEvent.java
 
 
-package guru.sfg.mssc.beer.service.event;
+package guru.sfg.mssc.commons.event;
 
 
-import guru.sfg.mssc.beer.service.web.model.BeerDto;
+import guru.sfg.mssc.commons.dto.BeerDto;
 import lombok.NoArgsConstructor;
 
 

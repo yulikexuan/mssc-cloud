@@ -8,7 +8,7 @@ import guru.sfg.mssc.beer.service.config.JmsConfig;
 import guru.sfg.mssc.beer.service.domain.model.Beer;
 import guru.sfg.mssc.beer.service.domain.repositories.IBeerRepository;
 import guru.sfg.mssc.beer.service.domain.services.IBeerSpecification;
-import guru.sfg.mssc.beer.service.event.BrewBeerEvent;
+import guru.sfg.mssc.commons.event.BrewBeerEvent;
 import guru.sfg.mssc.beer.service.web.mapper.IBeerMapper;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class BrewingService implements IBrewingService {
     private final IBeerSpecification beerLowInventorySpecification;
 
     @Override
-    @Scheduled(initialDelay = 10000L, fixedDelay = 5 * 60000L) // Every 5 Mins
+    @Scheduled(initialDelay = 10000L, fixedDelay = 60000L) // Every 30 Sec.
     public void checkForLowInventory() {
 
         List<Beer> allBeers = this.beerRepository.findAll();

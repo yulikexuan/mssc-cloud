@@ -1,6 +1,6 @@
-// guru.sfg.beer.inventory.service.repositories.BeerInventoryRepository.java
+// guru.sfg.beer.inventory.service.domain.repositories.IBeerInventoryRepository.java
 
-package guru.sfg.beer.inventory.service.repositories;
+package guru.sfg.beer.inventory.service.domain.repositories;
 
 
 import guru.sfg.beer.inventory.service.domain.BeerInventory;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-public interface BeerInventoryRepository extends JpaRepository<BeerInventory, UUID> {
+public interface IBeerInventoryRepository extends JpaRepository<BeerInventory, UUID> {
 
     /*
      * https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#jpa.query-methods.query-creation

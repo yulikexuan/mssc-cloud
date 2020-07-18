@@ -1,7 +1,7 @@
 package guru.sfg.beer.inventory.service.bootstrap;
 
 import guru.sfg.beer.inventory.service.domain.BeerInventory;
-import guru.sfg.beer.inventory.service.repositories.BeerInventoryRepository;
+import guru.sfg.beer.inventory.service.domain.repositories.IBeerInventoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -32,7 +32,7 @@ public class BeerInvntoryBootstrap implements CommandLineRunner {
     public static final UUID BEER_6_UUID = UUID.fromString("1a294bd8-ad9f-11ea-a64d-0242ac130004");
     public static final UUID BEER_7_UUID = UUID.fromString("c8a865d2-a647-4c20-a7ed-67eb0cbfb054");
 
-    private final BeerInventoryRepository beerInventoryRepository;
+    private final IBeerInventoryRepository beerInventoryRepository;
 
     @Override
     public void run(String... args) throws Exception {

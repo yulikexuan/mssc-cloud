@@ -1,16 +1,16 @@
-package guru.sfg.beer.inventory.service.web.mappers;
+//: guru.sfg.beer.inventory.service.domain.service.mappers.BeerInventoryMapper.java
+
+
+package guru.sfg.beer.inventory.service.domain.service.mappers;
+
 
 import guru.sfg.beer.inventory.service.domain.BeerInventory;
 import guru.sfg.beer.inventory.service.web.model.BeerInventoryDto;
 import org.mapstruct.Mapper;
 
-/**
- * Created by jt on 2019-05-31.
- */
+
 @Mapper(uses = {DateMapper.class})
 public interface BeerInventoryMapper {
-
     BeerInventory beerInventoryDtoToBeerInventory(BeerInventoryDto beerInventoryDTO);
-
     BeerInventoryDto beerInventoryToBeerInventoryDto(BeerInventory beerInventory);
-}
+}///:~

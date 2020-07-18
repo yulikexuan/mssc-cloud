@@ -6,8 +6,8 @@ package guru.sfg.mssc.beer.service.domain.services.brewing;
 
 import guru.sfg.mssc.beer.service.config.JmsConfig;
 import guru.sfg.mssc.beer.service.domain.services.IBeerService;
-import guru.sfg.mssc.beer.service.event.BrewBeerEvent;
-import guru.sfg.mssc.beer.service.event.NewBeerInventoryEvent;
+import guru.sfg.mssc.commons.event.BrewBeerEvent;
+import guru.sfg.mssc.commons.event.NewBeerInventoryEvent;
 import guru.sfg.mssc.beer.service.web.model.BeerDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class BrewBeerListener {
 
         beerDto.setQuantityOnHand(quantityToBrew);
 
-        log.info(">>>>>>> Just brewed beer {} - QQH: {}",
+        log.debug(">>>>>>> Just brewed beer {} - QQH: {}",
                 beerDto.getBeerName(), beerDto.getQuantityOnHand());
 
         jmsTemplate.convertAndSend(JmsConfig.NEW_INVENTORY_QUEUE_NAME,
