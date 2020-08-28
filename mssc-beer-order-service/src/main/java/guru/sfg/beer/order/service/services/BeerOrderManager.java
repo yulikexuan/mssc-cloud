@@ -15,6 +15,7 @@ import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
 import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
+import org.springframework.statemachine.support.StateMachineInterceptor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,10 +25,15 @@ import org.springframework.transaction.annotation.Transactional;
 @AllArgsConstructor
 public class BeerOrderManager implements IBeerOrderManager {
 
+    public static final String BEER_ORDER_ID_HEADER = "beer_order_id";
+
     private final StateMachineFactory<BeerOrderStatusEnum, BeerOrderEventEnum>
             stateMachineFactory;
 
     private final BeerOrderRepository beerOrderRepository;
+
+    private final StateMachineInterceptor<BeerOrderStatusEnum, BeerOrderEventEnum>
+            stateMachineInterceptor;
 
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
@@ -35,8 +41,12 @@ public class BeerOrderManager implements IBeerOrderManager {
 
         beerOrder.setId(null);
         beerOrder.setOrderStatus(BeerOrderStatusEnum.NEW);
-        this.sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.VALIDATE_ORDER_EVENT);
-        return this.beerOrderRepository.save(beerOrder);
+
+        BeerOrder newBeerOrder = this.beerOrderRepository.save(beerOrder);
+
+        this.sendBeerOrderEvent(newBeerOrder, BeerOrderEventEnum.VALIDATE_ORDER_EVENT);
+
+        return newBeerOrder;
     }
 
     private void sendBeerOrderEvent(@NonNull BeerOrder beerOrder,
@@ -45,7 +55,9 @@ public class BeerOrderManager implements IBeerOrderManager {
         var stateMachine =
                 this.buildStateMachine(beerOrder);
 
-        var msg = MessageBuilder.withPayload(event).build();
+        var msg = MessageBuilder.withPayload(event)
+                .setHeader(BEER_ORDER_ID_HEADER, beerOrder.getId())
+                .build();
 
         stateMachine.sendEvent(msg);
     }
@@ -64,8 +76,12 @@ public class BeerOrderManager implements IBeerOrderManager {
                 null);
 
         stateMachine.getStateMachineAccessor()
-                .doWithAllRegions(stateMachineAccessor ->
-                        stateMachineAccessor.resetStateMachine(stateMachineContext));
+                .doWithAllRegions(stateMachineAccessor -> {
+                        stateMachineAccessor.addStateMachineInterceptor(
+                                this.stateMachineInterceptor);
+                        stateMachineAccessor.resetStateMachine(
+                                stateMachineContext);
+                });
 
         stateMachine.start();
 
