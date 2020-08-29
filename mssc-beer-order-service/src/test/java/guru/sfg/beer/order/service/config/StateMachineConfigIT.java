@@ -1,4 +1,4 @@
-//: guru.sfg.beer.order.service.config.StateMachineConfigTest.java
+//: guru.sfg.beer.order.service.config.StateMachineConfigIT.java
 
 
 package guru.sfg.beer.order.service.config;
@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @DisplayName("Test Order State Machine Configuration - ")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-class StateMachineConfigTest {
+class StateMachineConfigIT {
 
     @Autowired
     private StateMachineFactory<BeerOrderStatusEnum, BeerOrderEventEnum>
@@ -44,14 +44,15 @@ class StateMachineConfigTest {
                 this.orderStateMachine.getState().getId();
 
         this.orderStateMachine.sendEvent(BeerOrderEventEnum.VALIDATE_ORDER_EVENT);
-
         this.orderStateMachine.sendEvent(BeerOrderEventEnum.VALIDATION_PASSED_EVENT);
-        BeerOrderStatusEnum beerOrderValidatedStatus =
+
+        BeerOrderStatusEnum beerOrderCurrentStatus =
                 this.orderStateMachine.getState().getId();
 
         // Then
         assertThat(beerOrderInitialStatus).isSameAs(BeerOrderStatusEnum.NEW);
-        assertThat(beerOrderValidatedStatus).isSameAs(BeerOrderStatusEnum.VALIDATED);
+        assertThat(beerOrderCurrentStatus).isSameAs(
+                BeerOrderStatusEnum.VALIDATED);
     }
 
     @Test
@@ -64,8 +65,8 @@ class StateMachineConfigTest {
                 this.orderStateMachine.getState().getId();
 
         this.orderStateMachine.sendEvent(BeerOrderEventEnum.VALIDATE_ORDER_EVENT);
-
         this.orderStateMachine.sendEvent(BeerOrderEventEnum.VALIDATION_FAILED_EVENT);
+
         BeerOrderStatusEnum beerOrderValidationExceptionStatus =
                 this.orderStateMachine.getState().getId();
 

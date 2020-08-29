@@ -81,13 +81,13 @@ public class StateMachineConfig extends
                 .and()
                 // -------------------------------------------------------------
                 .withExternal()
-                .source(NEW)
+                .source(VALIDATION_PENDING)
                 .target(VALIDATED)
                 .event(VALIDATION_PASSED_EVENT)
                 .and()
                 // -------------------------------------------------------------
                 .withExternal()
-                .source(NEW)
+                .source(VALIDATION_PENDING)
                 .target(VALIDATION_EXCEPTION)
                 .event(VALIDATION_FAILED_EVENT);
     }

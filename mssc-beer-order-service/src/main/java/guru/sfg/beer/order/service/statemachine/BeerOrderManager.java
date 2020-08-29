@@ -19,6 +19,7 @@ import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.statemachine.support.StateMachineInterceptor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -37,7 +38,7 @@ public class BeerOrderManager implements IBeerOrderManager {
             stateMachineInterceptor;
 
     @Override
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
     public BeerOrder newBeerOrder(@NonNull BeerOrder beerOrder) {
 
         beerOrder.setId(null);
