@@ -67,7 +67,7 @@ public class StateMachineConfig extends
 
         transitions.withExternal()
                 .source(NEW)
-                .target(NEW)
+                .target(VALIDATION_PENDING)
                 .event(VALIDATE_ORDER_EVENT)
                 // TODO: Add validation action here
                 .and()
