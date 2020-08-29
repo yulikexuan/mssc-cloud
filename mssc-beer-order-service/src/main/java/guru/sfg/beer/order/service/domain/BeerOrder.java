@@ -25,8 +25,10 @@ public class BeerOrder extends BaseEntity {
 
     @Builder
     public BeerOrder(UUID id, Long version, Timestamp createdDate,
-                     Timestamp lastModifiedDate, String customerRef, Customer customer,
-                     Set<BeerOrderLine> beerOrderLines, BeerOrderStatusEnum orderStatus,
+                     Timestamp lastModifiedDate, String customerRef,
+                     Customer customer,
+                     Set<BeerOrderLine> beerOrderLines,
+                     BeerOrderStatusEnum orderStatus,
                      String orderStatusCallbackUrl) {
 
         super(id, version, createdDate, lastModifiedDate);

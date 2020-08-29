@@ -1,13 +1,15 @@
-//: guru.sfg.beer.order.service.config.StateMachineConfig.java
+//: guru.sfg.beer.order.service.statemachine.StateMachineConfig.java
 
 
-package guru.sfg.beer.order.service.config;
+package guru.sfg.beer.order.service.statemachine;
 
 
 import guru.sfg.beer.order.service.domain.BeerOrderEventEnum;
 import guru.sfg.beer.order.service.domain.BeerOrderStatusEnum;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
@@ -15,15 +17,19 @@ import org.springframework.statemachine.config.builders.StateMachineTransitionCo
 
 import java.util.EnumSet;
 
-import static guru.sfg.beer.order.service.domain.BeerOrderStatusEnum.*;
 import static guru.sfg.beer.order.service.domain.BeerOrderEventEnum.*;
+import static guru.sfg.beer.order.service.domain.BeerOrderStatusEnum.*;
 
 
 @Slf4j
 @Configuration
 @EnableStateMachineFactory
+@RequiredArgsConstructor
 public class StateMachineConfig extends
         StateMachineConfigurerAdapter<BeerOrderStatusEnum, BeerOrderEventEnum> {
+
+    private final Action<BeerOrderStatusEnum, BeerOrderEventEnum>
+            validatingBeerOrderAction;
 
     @Override
     public void configure(
@@ -65,17 +71,21 @@ public class StateMachineConfig extends
     public void configure(StateMachineTransitionConfigurer<
             BeerOrderStatusEnum, BeerOrderEventEnum> transitions) throws Exception {
 
-        transitions.withExternal()
+        transitions
+                // -------------------------------------------------------------
+                .withExternal()
                 .source(NEW)
                 .target(VALIDATION_PENDING)
                 .event(VALIDATE_ORDER_EVENT)
-                // TODO: Add validation action here
+                .action(validatingBeerOrderAction)
                 .and()
+                // -------------------------------------------------------------
                 .withExternal()
                 .source(NEW)
                 .target(VALIDATED)
                 .event(VALIDATION_PASSED_EVENT)
                 .and()
+                // -------------------------------------------------------------
                 .withExternal()
                 .source(NEW)
                 .target(VALIDATION_EXCEPTION)

@@ -5,9 +5,7 @@ package guru.sfg.beer.order.service.services.beer;
 
 
 import guru.sfg.beer.order.service.web.model.BeerDto;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -22,6 +20,8 @@ import static org.awaitility.Awaitility.await;
  */
 //@Disabled
 @SpringBootTest
+@DisplayName("Beer Service Test - ")
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class BeerServiceIT {
 
     static final String BEER_1_UUID = "0a818933-087d-47f2-ad83-2f986ed087eb";

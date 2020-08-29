@@ -14,10 +14,14 @@ import org.springframework.jms.support.converter.MessageType;
 @Configuration
 public class JmsConfig {
 
+    // The destination of validate-order
+    public static final String ORDER_VALIDATION_QUEUE_NAME = "validate-order";
+
     @Bean
     public MessageConverter messageConverter() {
 
-        MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+        MappingJackson2MessageConverter converter =
+                new MappingJackson2MessageConverter();
 
         converter.setTargetType(MessageType.TEXT);
 
