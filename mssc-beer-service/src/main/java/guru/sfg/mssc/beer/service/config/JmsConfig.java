@@ -17,6 +17,7 @@ public class JmsConfig {
 
     public static final String BREWING_REQUEST_QUEUE_NAME = "brewing-request";
     public static final String NEW_INVENTORY_QUEUE_NAME = "new-inventory";
+    public static final String ORDER_VALIDATION_QUEUE_NAME = "validate-order";
 
     @Bean
     public MessageConverter messageConverter(ObjectMapper objectMapper) {
