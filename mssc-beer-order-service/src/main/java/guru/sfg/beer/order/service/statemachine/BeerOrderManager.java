@@ -29,10 +29,10 @@ public class BeerOrderManager implements IBeerOrderManager {
 
     public static final String BEER_ORDER_ID_HEADER = "beer_order_id";
 
+    private final BeerOrderRepository beerOrderRepository;
+
     private final StateMachineFactory<BeerOrderStatusEnum, BeerOrderEventEnum>
             stateMachineFactory;
-
-    private final BeerOrderRepository beerOrderRepository;
 
     private final StateMachineInterceptor<BeerOrderStatusEnum, BeerOrderEventEnum>
             stateMachineInterceptor;

@@ -31,4 +31,6 @@ public interface IBeerRepository extends JpaRepository<Beer, UUID> {
 
     Optional<Beer> findByUpc(String upc);
 
+    boolean existsBeerByUpc(String upc);
+
 }///:~

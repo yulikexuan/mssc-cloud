@@ -23,14 +23,48 @@ curl -s -w '\n\nTotal: %{time_total} Seconds\n' http://localhost:8081/api/v1/upc
 
 ### The Database
 
-#### How Many Database Connections created in DB Server
-- `SELECT sum(numbackends) FROM pg_stat_database;`
+- psql -h localhost -U postgres
+
+- How Many Database Connections created in DB Server
+    - `SELECT sum(numbackends) FROM pg_stat_database;`
+
+- List all users
+    - ` \du `
+
+- Connect to database with psql
+    - ` psql -h localhost -U username databasename `
+
+- List all database
+    - ` \l `
+
+- Connect to a specific database
+    - ` \c <datebase_name> `
+
+- List all schemas
+    - ` \dn `
+
+- List all tables
+    - ` \dt `
+    - ` \dt+ `
+- Get detailed information on a table
+    - ` \d+ <table name> `
+
+- To quit from psql
+    - ` postgres=# \q `
 
 ### ActiveMQ-Artemis in Docker Container
+
 - For Windows 10: 
-  - ``` winpty docker run -it --rm -p 8161:8161 -p 61616:61616 vromero/activemq-artemis ```
+  - Start ActiveMQ-Artemis
+    - ``` winpty docker run -it --rm -p 8161:8161 -p 61616:61616 vromero/activemq-artemis ```
+  - Stop ActiveMQ-Artemis
+    - ``` docker stop <container name> ```
+
 - For Linux: 
-  - ``` docker run -it --rm -p 8161:8161 -p 61616:61616 vromero/activemq-artemis ```
+    - Start ActiveMQ-Artemis
+      - ``` docker run -it --rm -p 8161:8161 -p 61616:61616 vromero/activemq-artemis ```
+  - Stop ActiveMQ-Artemis
+    - ``` docker stop <container name> ```
 
 ### Solution for Tricky Issues
 
@@ -38,6 +72,7 @@ curl -s -w '\n\nTotal: %{time_total} Seconds\n' http://localhost:8081/api/v1/upc
 
 
 ### Resources
-* https://ec.haxx.se/usingcurl/usingcurl-verbose/usingcurl-writeout[cURL - Write Out]
-* https://stackoverflow.com/questions/18215389/how-do-i-measure-request-and-response-times-at-once-using-curl[cURL - Measure Times]
+* [psql cheatsheet](https://www.postgresqltutorial.com/postgresql-cheat-sheet/)
+* [cURL - Write Out](https://ec.haxx.se/usingcurl/usingcurl-verbose/usingcurl-writeout)
+* [cURL - Measure Times](https://stackoverflow.com/questions/18215389/how-do-i-measure-request-and-response-times-at-once-using-curl)
 

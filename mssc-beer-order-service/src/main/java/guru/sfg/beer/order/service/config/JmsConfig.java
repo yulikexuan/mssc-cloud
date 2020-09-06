@@ -17,6 +17,8 @@ public class JmsConfig {
 
     // The destination of validate-order
     public static final String ORDER_VALIDATION_QUEUE_NAME = "validate-order";
+    public static final String ORDER_VALIDATION_RESULT_QUEUE_NAME =
+            "validate-order-result";
 
     @Bean
     public MessageConverter messageConverter(ObjectMapper objectMapper) {

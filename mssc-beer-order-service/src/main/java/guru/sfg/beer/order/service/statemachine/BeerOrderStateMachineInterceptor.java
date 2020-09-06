@@ -14,6 +14,7 @@ import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
 import org.springframework.statemachine.transition.Transition;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +29,7 @@ public class BeerOrderStateMachineInterceptor extends
     private final BeerOrderRepository beerOrderRepository;
 
     @Override
+    @Transactional
     public void preStateChange(
             State<BeerOrderStatusEnum, BeerOrderEventEnum> state,
             Message<BeerOrderEventEnum> message,
@@ -36,7 +38,7 @@ public class BeerOrderStateMachineInterceptor extends
 
         Optional.ofNullable(message)
                 .flatMap(this::getBeerOrderId)
-                .map(this.beerOrderRepository::getOne)
+                .flatMap(this.beerOrderRepository::findById)
                 .ifPresent(beerOrder -> {
                     log.debug(">>>>>>> Saving state {} for beer order id {} ",
                             state.getId(), beerOrder.getId());

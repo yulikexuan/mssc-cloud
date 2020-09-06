@@ -1,15 +1,13 @@
 package guru.sfg.beer.order.service.domain;
 
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Set;
 import java.util.UUID;
@@ -17,21 +15,27 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Entity
-public class Customer extends BaseEntity {
+@NoArgsConstructor
+@Builder @AllArgsConstructor
+public class Customer {
 
-    @Builder
-    public Customer(UUID id, Long version, Timestamp createdDate,
-                    Timestamp lastModifiedDate, String customerName,
-                    UUID apiKey, Set<BeerOrder> beerOrders) {
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Type(type="org.hibernate.type.UUIDCharType")
+    @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false )
+    private UUID id;
 
-        super(id, version, createdDate, lastModifiedDate);
+    @Version
+    private Long version;
 
-        this.customerName = customerName;
-        this.apiKey = apiKey;
-        this.beerOrders = beerOrders;
-    }
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Timestamp createdDate;
+
+    @UpdateTimestamp
+    private Timestamp lastModifiedDate;
 
     @Column(length = 36, columnDefinition = "varchar(36)")
     private String customerName;
@@ -40,7 +44,12 @@ public class Customer extends BaseEntity {
     @Column(length = 36, columnDefinition = "varchar(36)")
     private UUID apiKey;
 
+    @Singular
     @OneToMany(mappedBy = "customer")
     private Set<BeerOrder> beerOrders;
+
+    public boolean isNew() {
+        return this.id == null;
+    }
 
 }

@@ -1,39 +1,40 @@
 package guru.sfg.beer.order.service.domain;
 
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.UUID;
 
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Entity
-public class BeerOrderLine extends BaseEntity {
+@NoArgsConstructor
+@Builder @AllArgsConstructor
+public class BeerOrderLine {
 
-    @Builder
-    public BeerOrderLine(
-            UUID id, Long version, Timestamp createdDate, Timestamp lastModifiedDate,
-            BeerOrder beerOrder, UUID beerId, String upc, Integer orderQuantity,
-            Integer quantityAllocated) {
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Type(type="org.hibernate.type.UUIDCharType")
+    @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false )
+    private UUID id;
 
-        super(id, version, createdDate, lastModifiedDate);
+    @Version
+    private Long version;
 
-        this.beerOrder = beerOrder;
-        this.beerId = beerId;
-        this.upc = upc;
-        this.orderQuantity = orderQuantity;
-        this.quantityAllocated = quantityAllocated;
-    }
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Timestamp createdDate;
+
+    @UpdateTimestamp
+    private Timestamp lastModifiedDate;
 
     @ManyToOne
     private BeerOrder beerOrder;
@@ -45,4 +46,8 @@ public class BeerOrderLine extends BaseEntity {
     private String upc;
     private Integer orderQuantity = 0;
     private Integer quantityAllocated = 0;
+
+    public boolean isNew() {
+        return this.id == null;
+    }
 }
