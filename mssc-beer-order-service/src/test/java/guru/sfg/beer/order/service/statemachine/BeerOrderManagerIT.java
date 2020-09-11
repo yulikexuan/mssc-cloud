@@ -13,6 +13,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.transaction.Transactional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -45,6 +46,7 @@ class BeerOrderManagerIT {
     }
 
     @Test
+    @Transactional
     void test_Given_New_State_Beer_Ordere_When_Sending_Validate_Order_Event_Then_In_Validation_Pending_State() {
 
         // Given

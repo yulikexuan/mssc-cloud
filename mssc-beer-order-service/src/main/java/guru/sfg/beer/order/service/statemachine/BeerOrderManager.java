@@ -4,13 +4,19 @@
 package guru.sfg.beer.order.service.statemachine;
 
 
+import guru.sfg.beer.order.service.config.JmsConfig;
 import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.domain.BeerOrderEventEnum;
 import guru.sfg.beer.order.service.domain.BeerOrderStatusEnum;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
-import guru.sfg.beer.order.service.services.IBeerOrderManager;
+import guru.sfg.brewery.model.ValidateBeerOrderResponse;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.jms.annotation.JmsListener;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.handler.annotation.Headers;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineContext;
@@ -18,11 +24,13 @@ import org.springframework.statemachine.config.StateMachineFactory;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
 import org.springframework.statemachine.support.StateMachineInterceptor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.jms.Message;
+import java.util.UUID;
 
+
+@Slf4j
 @Service
 @AllArgsConstructor
 public class BeerOrderManager implements IBeerOrderManager {
@@ -38,7 +46,7 @@ public class BeerOrderManager implements IBeerOrderManager {
             stateMachineInterceptor;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
+    @Transactional
     public BeerOrder newBeerOrder(@NonNull BeerOrder beerOrder) {
 
         beerOrder.setId(null);
@@ -46,9 +54,32 @@ public class BeerOrderManager implements IBeerOrderManager {
 
         BeerOrder newBeerOrder = this.beerOrderRepository.save(beerOrder);
 
-        this.sendBeerOrderEvent(newBeerOrder, BeerOrderEventEnum.VALIDATE_ORDER_EVENT);
+        this.sendBeerOrderEvent(newBeerOrder,
+                BeerOrderEventEnum.VALIDATE_ORDER_EVENT);
 
         return newBeerOrder;
+    }
+
+    @Transactional
+    @JmsListener(destination = JmsConfig.ORDER_VALIDATION_RESULT_QUEUE_NAME)
+    void listenToBeerOrderValidationResult(
+            @Payload ValidateBeerOrderResponse validationResponse,
+            @Headers MessageHeaders headers, Message message) {
+
+        UUID beerOrderId = validationResponse.getOrderId();
+        boolean isOrderValide = validationResponse.isValid();
+
+        log.debug(">>>>>>> Is Beer-Order '{}' valide? {}", beerOrderId,
+                isOrderValide);
+
+        BeerOrder beerOrder = this.beerOrderRepository.findOneById(
+                beerOrderId);
+
+        BeerOrderEventEnum event = isOrderValide ?
+                BeerOrderEventEnum.VALIDATION_PASSED_EVENT :
+                BeerOrderEventEnum.VALIDATION_FAILED_EVENT;
+
+        this.sendBeerOrderEvent(beerOrder, event);
     }
 
     private void sendBeerOrderEvent(@NonNull BeerOrder beerOrder,

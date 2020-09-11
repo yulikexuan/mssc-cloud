@@ -1,7 +1,7 @@
-//: guru.sfg.beer.order.service.services.IBeerOrderManager.java
+//: guru.sfg.beer.order.service.statemachine.IBeerOrderManager.java
 
 
-package guru.sfg.beer.order.service.services;
+package guru.sfg.beer.order.service.statemachine;
 
 
 import guru.sfg.beer.order.service.domain.BeerOrder;
