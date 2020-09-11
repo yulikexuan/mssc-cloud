@@ -31,6 +31,9 @@ public class StateMachineConfig extends
     private final Action<BeerOrderStatusEnum, BeerOrderEventEnum>
             validatingBeerOrderAction;
 
+    private final Action<BeerOrderStatusEnum, BeerOrderEventEnum>
+            allocateBeerOrderAction;
+
     @Override
     public void configure(
             StateMachineStateConfigurer<BeerOrderStatusEnum, BeerOrderEventEnum>
@@ -89,7 +92,14 @@ public class StateMachineConfig extends
                 .withExternal()
                 .source(VALIDATION_PENDING)
                 .target(VALIDATION_EXCEPTION)
-                .event(VALIDATION_FAILED_EVENT);
+                .event(VALIDATION_FAILED_EVENT)
+                .and()
+                // -------------------------------------------------------------
+                .withExternal()
+                .source(VALIDATED)
+                .target(ALLOCATION_PENDING)
+                .event(ALLOCATE_ORDER_EVENT)
+                .action(allocateBeerOrderAction);
     }
 
 }///:~

@@ -29,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.Message;
 import java.util.UUID;
 
+import static guru.sfg.beer.order.service.domain.BeerOrderEventEnum.*;
+
 
 @Slf4j
 @Service
@@ -54,8 +56,7 @@ public class BeerOrderManager implements IBeerOrderManager {
 
         BeerOrder newBeerOrder = this.beerOrderRepository.save(beerOrder);
 
-        this.sendBeerOrderEvent(newBeerOrder,
-                BeerOrderEventEnum.VALIDATE_ORDER_EVENT);
+        this.sendBeerOrderEvent(newBeerOrder, VALIDATE_ORDER_EVENT);
 
         return newBeerOrder;
     }
@@ -75,11 +76,14 @@ public class BeerOrderManager implements IBeerOrderManager {
         BeerOrder beerOrder = this.beerOrderRepository.findOneById(
                 beerOrderId);
 
-        BeerOrderEventEnum event = isOrderValide ?
-                BeerOrderEventEnum.VALIDATION_PASSED_EVENT :
-                BeerOrderEventEnum.VALIDATION_FAILED_EVENT;
-
-        this.sendBeerOrderEvent(beerOrder, event);
+        if (isOrderValide) {
+            this.sendBeerOrderEvent(beerOrder, VALIDATION_PASSED_EVENT);
+            BeerOrder validatedBeerOrder = this.beerOrderRepository.findOneById(
+                    beerOrderId);
+            this.sendBeerOrderEvent(validatedBeerOrder, ALLOCATE_ORDER_EVENT);
+        } else {
+            this.sendBeerOrderEvent(beerOrder, VALIDATION_FAILED_EVENT);
+        }
     }
 
     private void sendBeerOrderEvent(@NonNull BeerOrder beerOrder,

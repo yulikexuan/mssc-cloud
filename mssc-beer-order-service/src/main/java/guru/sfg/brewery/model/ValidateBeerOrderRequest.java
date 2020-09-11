@@ -10,7 +10,6 @@ import java.io.Serializable;
 
 
 @Getter
-@Setter
 @NoArgsConstructor
 @Builder @AllArgsConstructor(staticName = "of")
 public class ValidateBeerOrderRequest implements Serializable {
