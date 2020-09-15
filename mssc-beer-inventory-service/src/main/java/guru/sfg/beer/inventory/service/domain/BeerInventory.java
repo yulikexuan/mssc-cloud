@@ -19,7 +19,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @Entity
-public class BeerInventory extends BaseEntity{
+public class BeerInventory extends BaseEntity {
 
     @Builder
     public BeerInventory(UUID id, Long version, Timestamp createdDate,

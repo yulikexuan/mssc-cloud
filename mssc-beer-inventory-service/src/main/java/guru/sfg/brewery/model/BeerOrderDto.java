@@ -1,5 +1,6 @@
 package guru.sfg.brewery.model;
 
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
+
 
 @Data
 @NoArgsConstructor
