@@ -99,7 +99,26 @@ public class StateMachineConfig extends
                 .source(VALIDATED)
                 .target(ALLOCATION_PENDING)
                 .event(ALLOCATE_ORDER_EVENT)
-                .action(allocateBeerOrderAction);
+                .action(allocateBeerOrderAction)
+                // -------------------------------------------------------------
+                .and()
+                .withExternal()
+                .source(ALLOCATION_PENDING)
+                .target(ALLOCATED)
+                .event(ALLOCATION_SUCCESS_EVENT)
+                // -------------------------------------------------------------
+                .and()
+                .withExternal()
+                .source(ALLOCATION_PENDING)
+                .target(ALLOCATION_EXCEPTION)
+                .event(ALLOCATION_FAILED_EVENT)
+                // -------------------------------------------------------------
+                .and()
+                .withExternal()
+                .source(ALLOCATION_PENDING)
+                .target(PENDING_INVENTORY)
+                .event(ALLOCATION_NO_INVENTORY_EVENT);
+
     }
 
 }///:~

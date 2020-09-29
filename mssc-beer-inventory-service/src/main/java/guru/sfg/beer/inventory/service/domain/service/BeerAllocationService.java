@@ -47,9 +47,9 @@ public class BeerAllocationService implements IBeerAllocationService {
     private boolean isQualifiedForAllocation(
             @NonNull BeerOrderLineDto beerOrderLineDto) {
 
-        return (((Objects.isNull(beerOrderLineDto.getOrderQuantity()) ?
+        return (((Objects.nonNull(beerOrderLineDto.getOrderQuantity()) ?
                 beerOrderLineDto.getOrderQuantity() : 0) -
-                (Objects.isNull(beerOrderLineDto.getQuantityAllocated()) ?
+                (Objects.nonNull(beerOrderLineDto.getQuantityAllocated()) ?
                         beerOrderLineDto.getQuantityAllocated() : 0)) > 0);
     }
 
@@ -66,7 +66,7 @@ public class BeerAllocationService implements IBeerAllocationService {
                         beerInventory, beerOrderLineDto));
 
         totalOrdered.add(beerOrderLineDto.getOrderQuantity());
-        totalAllocated.add((Objects.isNull(beerOrderLineDto.getQuantityAllocated()) ?
+        totalAllocated.add((Objects.nonNull(beerOrderLineDto.getQuantityAllocated()) ?
                 beerOrderLineDto.getQuantityAllocated() : 0));
     }
 

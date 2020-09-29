@@ -10,11 +10,11 @@ import guru.sfg.mssc.commons.event.NewBeerInventoryEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.annotation.JmsListener;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
 public class NewBeerInventoryListener {
 

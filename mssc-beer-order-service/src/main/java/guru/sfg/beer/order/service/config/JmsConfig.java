@@ -20,6 +20,8 @@ public class JmsConfig {
     public static final String ORDER_VALIDATION_RESULT_QUEUE_NAME =
             "validate-order-result";
     public static final String ORDER_ALLOCATION_QUEUE_NAME = "allocate-order";
+    public static final String ORDER_ALLOCATION_RESPONSE_QUEUE_NAME =
+            "allocate-order-response";
 
     @Bean
     public MessageConverter messageConverter(ObjectMapper objectMapper) {
