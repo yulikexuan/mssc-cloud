@@ -7,6 +7,9 @@ package guru.sfg.beer.order.service.statemachine;
 import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.domain.BeerOrderLine;
 import guru.sfg.beer.order.service.domain.BeerOrderStatusEnum;
+import guru.sfg.beer.order.service.domain.Customer;
+import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
+import guru.sfg.beer.order.service.repositories.CustomerRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.*;
@@ -15,14 +18,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 @Slf4j
 @SpringBootTest
-@DisplayName("Beer Order State Machine Test - ")
+@DisplayName("Beer Order Manager Test - ")
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class BeerOrderManagerIT {
 
@@ -41,23 +43,45 @@ class BeerOrderManagerIT {
     @Autowired
     private BeerOrderManager beerOrderManager;
 
+    @Autowired
+    private BeerOrderRepository beerOrderRepository;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    private Customer customer;
+
     @BeforeEach
     void setUp() {
+        this.customer = this.customerRepository.save(Customer.builder()
+                .customerName("tester")
+                .build());
+        this.beerOrder = this.createBeerOrder();
     }
 
     @Test
     @Transactional
-    void test_Given_New_State_Beer_Ordere_When_Sending_Validate_Order_Event_Then_In_Validation_Pending_State() {
+    void test_Given_New_Beer_Ordere_Then_Allocate() {
 
         // Given
+
+        // When
+        BeerOrder beerOrder = this.beerOrderManager.newBeerOrder(this.beerOrder);
+
+        // Then
+        assertThat(beerOrder).isNotNull();
+        assertThat(beerOrder.getOrderStatus()).isSameAs(
+                BeerOrderStatusEnum.VALIDATED);
+    }
+
+    private BeerOrder createBeerOrder() {
+
         BeerOrderLine line_1 = BeerOrderLine.builder()
-                .beerId(UUID.fromString(BEER_ID_HEINEKEN))
                 .upc(UPC_HEINEKEN)
                 .orderQuantity(50)
                 .build();
 
         BeerOrderLine line_2 = BeerOrderLine.builder()
-                .beerId(UUID.fromString(BEER_ID_GALAXY_CAT))
                 .upc(UPC_GALAXY_CAT)
                 .orderQuantity(40)
                 .build();
@@ -67,18 +91,14 @@ class BeerOrderManagerIT {
         lines.add(line_2);
 
         this.beerOrder = BeerOrder.builder()
+                .customer(this.customer)
                 .beerOrderLines(lines)
                 .build();
 
         line_1.setBeerOrder(this.beerOrder);
         line_2.setBeerOrder(this.beerOrder);
 
-        // When
-        BeerOrder beerOrder = this.beerOrderManager.newBeerOrder(this.beerOrder);
-
-        // Then
-        assertThat(beerOrder.getOrderStatus()).isSameAs(
-                BeerOrderStatusEnum.VALIDATION_PENDING);
+        return this.beerOrder;
     }
 
 }///:~
