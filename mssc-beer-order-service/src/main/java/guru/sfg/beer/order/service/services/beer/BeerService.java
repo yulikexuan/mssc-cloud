@@ -22,8 +22,8 @@ import java.util.function.Supplier;
 @Service
 public class BeerService implements IBeerService {
 
-    final static String BEER_PATH_V1 = "/api/v1/beer/";
-    final static String BEER_UPC_PATH_V1 = "/api/v1/upcbeer/";
+    public final static String BEER_PATH_V1 = "/api/v1/beer/";
+    public final static String BEER_UPC_PATH_V1 = "/api/v1/upcbeer/";
 
     private final RestTemplate restTemplate;
     private final String beerServiceHost;

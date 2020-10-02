@@ -49,6 +49,11 @@ public class ValidatingBeerOrderAction implements
         BeerOrder beerOrder = this.beerOrderRepository.findOneById(beerOrderId);
         BeerOrderDto beerOrderDto = this.beerOrderMapper.beerOrderToDto(beerOrder);
 
+        beerOrderDto.getBeerOrderLines()
+                .stream()
+                .forEach(line -> log.debug(">>>>>>> Line name: {}", line.getBeerName()));
+
+
         // Send JMS Message to destination - 'validate-order'
         ValidateBeerOrderRequest request = ValidateBeerOrderRequest.of(beerOrderDto);
         this.jmsTemplate.convertAndSend(JmsConfig.ORDER_VALIDATION_QUEUE_NAME, request);

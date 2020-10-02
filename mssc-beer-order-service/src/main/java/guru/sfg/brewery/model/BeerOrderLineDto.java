@@ -39,4 +39,7 @@ public class BeerOrderLineDto {
     private Integer orderQuantity = 0;
     private Integer quantityAllocated;
     private BigDecimal price;
+
+    // beerName, beerId, beerStyle, price are updated by remote mssc-beer-service
+    private boolean updatedByBeerService;
 }
