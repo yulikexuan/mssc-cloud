@@ -7,3 +7,7 @@ spring:
 sfg:
   brewery:
     beer-service-host: http://localhost:8099
+logging:
+  level:
+    guru:
+      sfg: debug

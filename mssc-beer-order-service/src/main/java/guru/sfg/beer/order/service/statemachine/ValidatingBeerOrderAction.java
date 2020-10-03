@@ -8,6 +8,7 @@ import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.domain.BeerOrderEventEnum;
 import guru.sfg.beer.order.service.domain.BeerOrderStatusEnum;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
+import guru.sfg.beer.order.service.services.NotFoundException;
 import guru.sfg.beer.order.service.web.mappers.BeerOrderMapper;
 import guru.sfg.brewery.model.BeerOrderDto;
 import guru.sfg.brewery.model.ValidateBeerOrderRequest;
@@ -46,7 +47,11 @@ public class ValidatingBeerOrderAction implements
         UUID beerOrderId = (UUID) stateContext.getMessageHeader(
                 BeerOrderManager.BEER_ORDER_ID_HEADER);
 
-        BeerOrder beerOrder = this.beerOrderRepository.findOneById(beerOrderId);
+        BeerOrder beerOrder = this.beerOrderRepository.findById(beerOrderId)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format(">>>>>>> Beer Order Not Found: %s",
+                                beerOrderId.toString())));
+
         BeerOrderDto beerOrderDto = this.beerOrderMapper.beerOrderToDto(beerOrder);
 
         beerOrderDto.getBeerOrderLines()

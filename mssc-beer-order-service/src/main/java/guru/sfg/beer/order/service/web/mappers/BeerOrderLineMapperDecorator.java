@@ -47,6 +47,8 @@ public abstract class BeerOrderLineMapperDecorator implements BeerOrderLineMappe
                             orderLineDto.setUpdatedByBeerService(true);
                         }, () -> orderLineDto.setUpdatedByBeerService(false)));
 
+        // future.join();
+
         return orderLineDto;
     }
 

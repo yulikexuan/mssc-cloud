@@ -15,7 +15,6 @@ import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.core.Options;
 import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.domain.BeerOrderLine;
-import guru.sfg.beer.order.service.domain.BeerOrderStatusEnum;
 import guru.sfg.beer.order.service.domain.Customer;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
 import guru.sfg.beer.order.service.repositories.CustomerRepository;
@@ -29,7 +28,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.Set;
 import java.util.UUID;
@@ -37,7 +35,9 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static guru.sfg.beer.order.service.domain.BeerOrderStatusEnum.ALLOCATION_PENDING;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 
 @Slf4j
@@ -96,8 +96,7 @@ class BeerOrderManagerIT {
     }
 
     @Test
-    @Transactional
-    void test_Given_New_Beer_Ordere_Then_Allocate() throws JsonProcessingException {
+    void test_Given_New_Beer_Ordere_Then_Allocate() throws JsonProcessingException, InterruptedException {
 
         // Given
         BeerDto beerDtoHeineken = getBeerDtoByUpcHeineken();
@@ -119,12 +118,18 @@ class BeerOrderManagerIT {
                 okJson(beerDtoJsonGalaxyCat)));
 
         // When
-        BeerOrder beerOrder = this.beerOrderManager.newBeerOrder(this.beerOrder);
+        UUID beerOrderId = this.beerOrderManager
+                .newBeerOrder(this.beerOrder).getId();
 
         // Then
-        assertThat(beerOrder).isNotNull();
-        assertThat(beerOrder.getOrderStatus()).isSameAs(
-                BeerOrderStatusEnum.VALIDATED);
+        await().untilAsserted(() -> {
+            assertThat(this.beerOrderRepository.findById(beerOrderId).
+                    isPresent()).isTrue();
+            assertThat(this.beerOrderRepository.findById(beerOrderId)
+                    .get().getOrderStatus())
+                    .isEqualTo(ALLOCATION_PENDING);
+        });
+
     }
 
     private BeerOrder createBeerOrder() {

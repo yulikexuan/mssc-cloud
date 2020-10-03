@@ -9,6 +9,7 @@ import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.domain.BeerOrderEventEnum;
 import guru.sfg.beer.order.service.domain.BeerOrderStatusEnum;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
+import guru.sfg.beer.order.service.services.NotFoundException;
 import guru.sfg.brewery.model.AllocateBeerOrderResponse;
 import guru.sfg.brewery.model.BeerOrderDto;
 import guru.sfg.brewery.model.ValidateBeerOrderResponse;
@@ -61,6 +62,7 @@ public class BeerOrderManager implements IBeerOrderManager {
         beerOrder.setOrderStatus(BeerOrderStatusEnum.NEW);
 
         BeerOrder newBeerOrder = this.beerOrderRepository.save(beerOrder);
+        log.debug(">>>>>>> New Beer Order, Id: {}", newBeerOrder.getId());
 
         this.sendBeerOrderEvent(newBeerOrder, VALIDATE_ORDER_EVENT);
 
@@ -79,13 +81,18 @@ public class BeerOrderManager implements IBeerOrderManager {
         log.debug(">>>>>>> Is Beer-Order '{}' valide? {}", beerOrderId,
                 isOrderValide);
 
-        BeerOrder beerOrder = this.beerOrderRepository.findOneById(
-                beerOrderId);
+        BeerOrder beerOrder = this.beerOrderRepository.findById(beerOrderId)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format(">>>>>>> Beer Order Not Found: %s",
+                                beerOrderId.toString())));
 
         if (isOrderValide) {
             this.sendBeerOrderEvent(beerOrder, VALIDATION_PASSED_EVENT);
-            BeerOrder validatedBeerOrder = this.beerOrderRepository.findOneById(
-                    beerOrderId);
+            BeerOrder validatedBeerOrder =
+                    this.beerOrderRepository.findById(beerOrderId)
+                    .orElseThrow(() -> new NotFoundException(
+                            String.format(">>>>>>> Beer Order Not Found: %s",
+                                    beerOrderId.toString())));
             this.sendBeerOrderEvent(validatedBeerOrder, ALLOCATE_ORDER_EVENT);
         } else {
             this.sendBeerOrderEvent(beerOrder, VALIDATION_FAILED_EVENT);
@@ -93,7 +100,7 @@ public class BeerOrderManager implements IBeerOrderManager {
     }
 
     @Transactional
-    @JmsListener(destination = JmsConfig.ORDER_VALIDATION_RESULT_QUEUE_NAME)
+    @JmsListener(destination = JmsConfig.ORDER_ALLOCATION_RESPONSE_QUEUE_NAME)
     void listenToBeerOrderAllocationResponse(
             @Payload AllocateBeerOrderResponse response) {
 
@@ -106,8 +113,10 @@ public class BeerOrderManager implements IBeerOrderManager {
                         "(allocated / pending inventory) : ({} / {}) ",
                 !response.getAllocationError(), response.getPendingInventory());
 
-        BeerOrder beerOrder = this.beerOrderRepository.findOneById(
-                beerOrderId);
+        BeerOrder beerOrder = this.beerOrderRepository.findById(beerOrderId)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format(">>>>>>> Beer Order Not Found: %s",
+                                beerOrderId.toString())));
 
         BeerOrderEventEnum event = ALLOCATION_SUCCESS_EVENT;
         BeerOrderStatusEnum expectedStatus = ALLOCATED;
@@ -189,6 +198,8 @@ public class BeerOrderManager implements IBeerOrderManager {
 
     private void sendBeerOrderEvent(@NonNull BeerOrder beerOrder,
                                     @NonNull BeerOrderEventEnum event) {
+
+        log.debug(">>>>>>> Sending Beer Order Event: {}", event.name());
 
         var stateMachine =
                 this.buildStateMachine(beerOrder);
