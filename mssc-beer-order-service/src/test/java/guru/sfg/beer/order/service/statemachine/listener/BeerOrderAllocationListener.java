@@ -1,10 +1,10 @@
-//: guru.sfg.beer.inventory.service.domain.service.BeerOrderAllocationListener.java
+//: guru.sfg.beer.order.service.statemachine.listener.BeerOrderAllocationListener.java
 
 
-package guru.sfg.beer.inventory.service.domain.service;
+package guru.sfg.beer.order.service.statemachine.listener;
 
 
-import guru.sfg.beer.inventory.service.config.JmsConfig;
+import guru.sfg.beer.order.service.config.JmsConfig;
 import guru.sfg.brewery.model.AllocateBeerOrderRequest;
 import guru.sfg.brewery.model.AllocateBeerOrderResponse;
 import guru.sfg.brewery.model.BeerOrderDto;
@@ -25,40 +25,28 @@ import java.util.Objects;
 public class BeerOrderAllocationListener {
 
     private final JmsTemplate jmsTemplate;
-    private final IBeerAllocationService beerAllocationService;
 
     @JmsListener(destination = JmsConfig.ORDER_ALLOCATION_QUEUE_NAME)
     public void listenToBeerOrderAllocationEvent(
             @Payload AllocateBeerOrderRequest allocateBeerOrderRequest,
             Message message) {
 
+        log.debug(">>>>>>> [IT] Processing beer order allocation ... ...");
+
         AllocateBeerOrderResponse.AllocateBeerOrderResponseBuilder builder =
                 AllocateBeerOrderResponse.builder();
 
-        boolean allocationError = false;
+        BeerOrderDto beerOrderDto = Objects.requireNonNull(
+                allocateBeerOrderRequest.getBeerOrderDto());
 
-        try {
+        beerOrderDto.getBeerOrderLines().stream()
+                .forEach(line -> {
+                    line.setQuantityAllocated(line.getOrderQuantity());
+                });
 
-            log.debug(">>>>>>> [IT] Processing beer order allocation.");
-
-            BeerOrderDto beerOrderDto = Objects.requireNonNull(
-                    allocateBeerOrderRequest.getBeerOrderDto());
-
-            builder.beerOrderDto(beerOrderDto);
-
-            boolean allocated = this.beerAllocationService.allocateBeerOrder(
-                    beerOrderDto);
-            boolean pendingInventory = !allocated;
-
-            builder.pendingInventory(pendingInventory);
-
-        } catch (Exception e) {
-            allocationError = true;
-            log.error(">>>>>>> The beer order allocation process was failed by {}",
-                    e.getCause());
-        }
-
-        builder.allocationError(allocationError);
+        builder.beerOrderDto(beerOrderDto);
+        builder.pendingInventory(false);
+        builder.allocationError(false);
 
         this.jmsTemplate.convertAndSend(
                 JmsConfig.ORDER_ALLOCATION_RESPONSE_QUEUE_NAME,

@@ -11,8 +11,8 @@ public enum BeerOrderStatusEnum {
     VALIDATION_EXCEPTION,
 
     // Allocation
-    ALLOCATION_PENDING,
     ALLOCATED,
+    ALLOCATION_PENDING,
     ALLOCATION_EXCEPTION,
 
     CANCELLED,

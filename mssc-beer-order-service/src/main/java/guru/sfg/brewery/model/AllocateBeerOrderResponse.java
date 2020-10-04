@@ -4,20 +4,20 @@
 package guru.sfg.brewery.model;
 
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
 
 @Getter
-@Builder @RequiredArgsConstructor
+@Setter
+@NoArgsConstructor
+@Builder @AllArgsConstructor
 public class AllocateBeerOrderResponse {
 
-    private final BeerOrderDto beerOrderDto;
-    private final Boolean allocationError = false;
-    private final Boolean pendingInventory = false;
+    private BeerOrderDto beerOrderDto;
+    private Boolean allocationError;
+    private Boolean pendingInventory;
 
     public UUID getBeerOrderId() {
         return this.beerOrderDto.getId();

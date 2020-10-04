@@ -54,7 +54,7 @@ public class AllocateBeerOrderAction implements
         // Send JMS Message to destination - "allocate-order"
         this.jmsTemplate.convertAndSend(
                 JmsConfig.ORDER_ALLOCATION_QUEUE_NAME,
-                AllocateBeerOrderRequest.of(beerOrderDto));
+                AllocateBeerOrderRequest.builder().beerOrderDto(beerOrderDto).build());
 
         log.debug(
                 ">>>>>>> Sent allocation request message to destination '{}' " +

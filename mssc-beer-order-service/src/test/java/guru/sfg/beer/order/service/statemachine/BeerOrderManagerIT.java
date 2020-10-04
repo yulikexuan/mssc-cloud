@@ -4,7 +4,6 @@
 package guru.sfg.beer.order.service.statemachine;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jenspiegsa.wiremockextension.ConfigureWireMock;
 import com.github.jenspiegsa.wiremockextension.InjectServer;
@@ -35,7 +34,7 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static guru.sfg.beer.order.service.domain.BeerOrderStatusEnum.ALLOCATION_PENDING;
+import static guru.sfg.beer.order.service.domain.BeerOrderStatusEnum.ALLOCATED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -96,7 +95,7 @@ class BeerOrderManagerIT {
     }
 
     @Test
-    void test_Given_New_Beer_Order_Then_Request_Allocate() throws JsonProcessingException, InterruptedException {
+    void test_Given_New_Beer_Order_Then_Being_Allocated() throws Exception {
 
         // Given
         BeerDto beerDtoHeineken = getBeerDtoByUpcHeineken();
@@ -127,7 +126,7 @@ class BeerOrderManagerIT {
                     isPresent()).isTrue();
             assertThat(this.beerOrderRepository.findById(beerOrderId)
                     .get().getOrderStatus())
-                    .isEqualTo(ALLOCATION_PENDING);
+                    .isEqualTo(ALLOCATED);
         });
 
     }
