@@ -6,9 +6,12 @@ package guru.sfg.beer.order.service.statemachine;
 
 import guru.sfg.beer.order.service.domain.BeerOrder;
 
+import java.util.Optional;
+import java.util.UUID;
+
 
 public interface IBeerOrderManager {
 
-    BeerOrder newBeerOrder(BeerOrder beerOrder);
+    Optional<UUID> newBeerOrder(BeerOrder beerOrder);
 
 }///:~

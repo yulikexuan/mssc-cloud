@@ -56,7 +56,7 @@ public class BeerOrderManager implements IBeerOrderManager {
 
     @Override
     @Transactional
-    public BeerOrder newBeerOrder(@NonNull BeerOrder beerOrder) {
+    public Optional<UUID> newBeerOrder(@NonNull BeerOrder beerOrder) {
 
         beerOrder.setId(null);
         beerOrder.setOrderStatus(BeerOrderStatusEnum.NEW);
@@ -66,7 +66,7 @@ public class BeerOrderManager implements IBeerOrderManager {
 
         this.sendBeerOrderEvent(newBeerOrder, VALIDATE_ORDER_EVENT);
 
-        return newBeerOrder;
+        return Optional.ofNullable(beerOrder.getId());
     }
 
     @Transactional

@@ -96,7 +96,7 @@ class BeerOrderManagerIT {
     }
 
     @Test
-    void test_Given_New_Beer_Ordere_Then_Allocate() throws JsonProcessingException, InterruptedException {
+    void test_Given_New_Beer_Order_Then_Request_Allocate() throws JsonProcessingException, InterruptedException {
 
         // Given
         BeerDto beerDtoHeineken = getBeerDtoByUpcHeineken();
@@ -119,7 +119,7 @@ class BeerOrderManagerIT {
 
         // When
         UUID beerOrderId = this.beerOrderManager
-                .newBeerOrder(this.beerOrder).getId();
+                .newBeerOrder(this.beerOrder).orElse(null);
 
         // Then
         await().untilAsserted(() -> {
