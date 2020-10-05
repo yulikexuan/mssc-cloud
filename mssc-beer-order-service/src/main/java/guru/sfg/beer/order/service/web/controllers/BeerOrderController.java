@@ -2,6 +2,7 @@ package guru.sfg.beer.order.service.web.controllers;
 
 
 import guru.sfg.beer.order.service.services.BeerOrderService;
+import guru.sfg.beer.order.service.services.FailedToPlaceBeerOrderException;
 import guru.sfg.brewery.model.BeerOrderDto;
 import guru.sfg.beer.order.service.web.model.BeerOrderPagedList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,10 +55,11 @@ public class BeerOrderController {
 
     @PostMapping("orders")
     @ResponseStatus(HttpStatus.CREATED)
-    public BeerOrderDto placeOrder(@PathVariable("customerId") UUID customerId,
+    public UUID placeOrder(@PathVariable("customerId") UUID customerId,
                                    @RequestBody BeerOrderDto beerOrderDto) {
 
-        return beerOrderService.placeOrder(customerId, beerOrderDto);
+        return beerOrderService.placeOrder(customerId, beerOrderDto)
+                .orElseThrow(FailedToPlaceBeerOrderException::new);
     }
 
     @PutMapping("/orders/{orderId}/pickup")

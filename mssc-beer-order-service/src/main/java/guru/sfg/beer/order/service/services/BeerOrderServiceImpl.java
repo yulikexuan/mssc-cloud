@@ -60,7 +60,7 @@ public class BeerOrderServiceImpl implements BeerOrderService {
 
     @Override
     @Transactional
-    public BeerOrderDto placeOrder(final UUID customerId,
+    public Optional<UUID> placeOrder(final UUID customerId,
                                    final BeerOrderDto beerOrderDto) {
 
         Customer customer = this.customerRepository.findById(customerId).orElseThrow(
@@ -81,17 +81,7 @@ public class BeerOrderServiceImpl implements BeerOrderService {
                     return new FailedToPlaceBeerOrderException(errMsg);
                 });
 
-        // TODO: Cycling test the BeerOrder status to see the final status
-
-        BeerOrder placedBeerOrder = this.beerOrderRepository.findById(beerOrderId)
-                .orElseThrow(() -> {
-                    String errMsg = String.format(">>>>>>> BeerOrder not found: {}",
-                            beerOrderId.toString());
-                    log.error(errMsg);
-                    return new NotFoundException(errMsg);
-                });
-
-        return this.beerOrderMapper.beerOrderToDto(placedBeerOrder);
+        return Optional.ofNullable(beerOrderId);
     }
 
     private Optional<UUID> placeOrderForCustomer(
