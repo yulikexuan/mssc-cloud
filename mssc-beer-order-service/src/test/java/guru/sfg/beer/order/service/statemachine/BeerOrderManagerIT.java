@@ -124,11 +124,13 @@ class BeerOrderManagerIT {
         await().untilAsserted(() -> {
             assertThat(this.beerOrderRepository.findById(beerOrderId).
                     isPresent()).isTrue();
-            assertThat(this.beerOrderRepository.findById(beerOrderId)
-                    .get().getOrderStatus())
-                    .isEqualTo(ALLOCATED);
+            BeerOrder allocatedBeerOrder = this.beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(ALLOCATED);
+            allocatedBeerOrder.getBeerOrderLines().forEach(
+                    line -> assertThat(line.getOrderQuantity()).isEqualTo(
+                            line.getQuantityAllocated()));
         });
-
     }
 
     private BeerOrder createBeerOrder() {
