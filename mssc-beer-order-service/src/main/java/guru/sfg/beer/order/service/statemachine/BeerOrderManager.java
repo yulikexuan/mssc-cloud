@@ -144,8 +144,17 @@ public class BeerOrderManager implements IBeerOrderManager {
 
         this.beerOrderRepository.findById(beerOrderId)
                 .ifPresentOrElse(
-                        beerOrder -> this.sendBeerOrderEvent(beerOrder,
-                                BEERORDER_PICKED_UP_EVENT),
+                        beerOrder -> {
+                            if (!beerOrder.getOrderStatus().equals(ALLOCATED)) {
+                                String errMsg = String.format(
+                                        ">>>>>>> The current order status " +
+                                                "is invalid for picking up: {}",
+                                        beerOrder.getId()
+                                );
+                                throw new IllegalStateException("");
+                            }
+                            this.sendBeerOrderEvent(beerOrder,
+                                BEERORDER_PICKED_UP_EVENT); },
                         () -> new NotFoundException(
                                 String.format(">>>>>>> Beer Order Not Found: %s",
                                         beerOrderId.toString())));

@@ -3,14 +3,15 @@ package guru.sfg.beer.order.service.services;
 
 import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.domain.Customer;
-import guru.sfg.beer.order.service.domain.BeerOrderStatusEnum;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
 import guru.sfg.beer.order.service.repositories.CustomerRepository;
+import guru.sfg.beer.order.service.statemachine.IBeerOrderManager;
 import guru.sfg.beer.order.service.web.mappers.BeerOrderMapper;
-import guru.sfg.brewery.model.BeerOrderDto;
 import guru.sfg.beer.order.service.web.model.BeerOrderPagedList;
+import guru.sfg.brewery.model.BeerOrderDto;
+import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,26 +22,18 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static guru.sfg.beer.order.service.domain.BeerOrderStatusEnum.NEW;
+
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class BeerOrderServiceImpl implements BeerOrderService {
 
     private final BeerOrderRepository beerOrderRepository;
     private final CustomerRepository customerRepository;
     private final BeerOrderMapper beerOrderMapper;
-    private final ApplicationEventPublisher publisher;
-
-    public BeerOrderServiceImpl(BeerOrderRepository beerOrderRepository,
-                                CustomerRepository customerRepository,
-                                BeerOrderMapper beerOrderMapper,
-                                ApplicationEventPublisher publisher) {
-
-        this.beerOrderRepository = beerOrderRepository;
-        this.customerRepository = customerRepository;
-        this.beerOrderMapper = beerOrderMapper;
-        this.publisher = publisher;
-    }
+    private final IBeerOrderManager beerOrderManager;
 
     @Override
     public BeerOrderPagedList listOrders(UUID customerId, Pageable pageable) {
@@ -65,34 +58,53 @@ public class BeerOrderServiceImpl implements BeerOrderService {
         }
     }
 
-    @Transactional
     @Override
-    public BeerOrderDto placeOrder(UUID customerId, BeerOrderDto beerOrderDto) {
+    @Transactional
+    public BeerOrderDto placeOrder(final UUID customerId,
+                                   final BeerOrderDto beerOrderDto) {
 
-        Optional<Customer> customerOptional =
-                customerRepository.findById(customerId);
+        Customer customer = this.customerRepository.findById(customerId).orElseThrow(
+                () -> {
+                    String errMsg = String.format(">>>>>>> Customer not found: {}",
+                            customerId);
+                    log.error(errMsg);
+                    return new NotFoundException(errMsg);
+                }
+        );
 
-        if (customerOptional.isPresent()) {
+        UUID beerOrderId = this.placeOrderForCustomer(customer, beerOrderDto)
+                .orElseThrow(() -> {
+                    String errMsg = String.format(
+                            ">>>>>>> Failed to place BeerOrder for {}",
+                            customer.getCustomerName());
+                    log.error(errMsg);
+                    return new FailedToPlaceBeerOrderException(errMsg);
+                });
 
-            BeerOrder beerOrder = beerOrderMapper.dtoToBeerOrder(beerOrderDto);
+        // TODO: Cycling test the BeerOrder status to see the final status
 
-            beerOrder.setId(null); //should not be set by outside client
-            beerOrder.setCustomer(customerOptional.get());
-            beerOrder.setOrderStatus(BeerOrderStatusEnum.NEW);
+        BeerOrder placedBeerOrder = this.beerOrderRepository.findById(beerOrderId)
+                .orElseThrow(() -> {
+                    String errMsg = String.format(">>>>>>> BeerOrder not found: {}",
+                            beerOrderId.toString());
+                    log.error(errMsg);
+                    return new NotFoundException(errMsg);
+                });
 
-            beerOrder.getBeerOrderLines().forEach(line -> line.setBeerOrder(beerOrder));
+        return this.beerOrderMapper.beerOrderToDto(placedBeerOrder);
+    }
 
-            BeerOrder savedBeerOrder = beerOrderRepository.saveAndFlush(beerOrder);
+    private Optional<UUID> placeOrderForCustomer(
+            @NonNull final Customer customer,
+            @NonNull final BeerOrderDto beerOrderDto) {
 
-            log.debug("Saved Beer Order: " + beerOrder.getId());
+        BeerOrder beerOrder = this.beerOrderMapper.dtoToBeerOrder(beerOrderDto);
+        beerOrder.setId(null);
+        beerOrder.setCustomer(customer);
+        beerOrder.setOrderStatus(NEW);
+        beerOrder.getBeerOrderLines().forEach(line -> line.setBeerOrder(beerOrder));
 
-            //todo impl
-          //  publisher.publishEvent(new NewBeerOrderEvent(savedBeerOrder));
-
-            return beerOrderMapper.beerOrderToDto(savedBeerOrder);
-        }
-        //todo add exception type
-        throw new RuntimeException("Customer Not Found");
+        return this.beerOrderManager.newBeerOrder(beerOrder);
     }
 
     @Override
@@ -101,11 +113,28 @@ public class BeerOrderServiceImpl implements BeerOrderService {
     }
 
     @Override
-    public void pickupOrder(UUID customerId, UUID orderId) {
-        BeerOrder beerOrder = getOrder(customerId, orderId);
-        beerOrder.setOrderStatus(BeerOrderStatusEnum.PICKED_UP);
+    public void pickupOrder(@NonNull final UUID customerId,
+                            @NonNull final UUID orderId) {
 
-        beerOrderRepository.save(beerOrder);
+        this.beerOrderRepository.findById(orderId)
+                .ifPresentOrElse(
+                        order -> {
+                            if (!order.getCustomer().getId().equals(customerId)) {
+                                String errMsg = String.format(
+                                        ">>>>>>> The BeerOrder %s is not " +
+                                                "for Customer %s",
+                                        orderId, customerId);
+                                throw new IllegalStateException(errMsg);
+                            }
+                            this.beerOrderManager.beerOrderPickedUp(orderId);
+                        },
+                        () -> {
+                            String errMsg = String.format(
+                                    ">>>>>>> BeerOrder not found: {}",
+                                    orderId);
+                            log.error(errMsg);
+                            throw new NotFoundException(errMsg);
+                        });
     }
 
     private BeerOrder getOrder(UUID customerId, UUID orderId) {
