@@ -117,8 +117,13 @@ public class StateMachineConfig extends
                 .withExternal()
                 .source(ALLOCATION_PENDING)
                 .target(PENDING_INVENTORY)
-                .event(ALLOCATION_NO_INVENTORY_EVENT);
-
+                .event(ALLOCATION_NO_INVENTORY_EVENT)
+                // -------------------------------------------------------------
+                .and()
+                .withExternal()
+                .source(ALLOCATED)
+                .target(PICKED_UP)
+                .event(BEERORDER_PICKED_UP_EVENT);
     }
 
 }///:~

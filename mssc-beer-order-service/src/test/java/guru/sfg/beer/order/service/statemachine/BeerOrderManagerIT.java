@@ -35,6 +35,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static guru.sfg.beer.order.service.domain.BeerOrderStatusEnum.ALLOCATED;
+import static guru.sfg.beer.order.service.domain.BeerOrderStatusEnum.PICKED_UP;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -86,35 +87,41 @@ class BeerOrderManagerIT {
 
     private Customer customer;
 
+    private BeerDto orderLineHeineken;
+    private String orderLineHeinekenJson;
+    private String orderLineHeinekenUri;
+
+    private BeerDto orderLineGalaxyCat;
+    private String orderLineGalaxyCatJson;
+    private String orderLineGalaxyCatUri;
+
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
+
         this.customer = this.customerRepository.save(Customer.builder()
                 .customerName("tester")
                 .build());
+
         this.beerOrder = this.createBeerOrder();
+
+        this.orderLineHeineken = getBeerDtoByUpcHeineken();
+        this.orderLineHeinekenJson =
+                this.objectMapper.writeValueAsString(this.orderLineHeineken);
+        this.orderLineHeinekenUri = this.getBeerDtoUri(
+                BeerService.BEER_UPC_PATH_V1, UPC_HEINEKEN);
+
+        this.orderLineGalaxyCat = getBeerDtoByUpcGalaxyCat();
+        this.orderLineGalaxyCatJson =
+                this.objectMapper.writeValueAsString(this.orderLineGalaxyCat);
+        this.orderLineGalaxyCatUri = this.getBeerDtoUri(
+                BeerService.BEER_UPC_PATH_V1, UPC_GALAXY_CAT);
     }
 
     @Test
-    void test_Given_New_Beer_Order_Then_Being_Allocated() throws Exception {
+    void test_Given_New_Beer_Order_Then_Ending_As_Allocated_State() throws Exception {
 
         // Given
-        BeerDto beerDtoHeineken = getBeerDtoByUpcHeineken();
-        String beerDtoJsonHeineken = objectMapper.writeValueAsString(
-                beerDtoHeineken);
-
-        BeerDto beerDtoGalaxyCat = getBeerDtoByUpcGalaxyCat();
-        String beerDtoJsonGalaxyCat = objectMapper.writeValueAsString(
-                beerDtoGalaxyCat);
-
-        String uriHeineken = getBeerDtoUri(BeerService.BEER_UPC_PATH_V1,
-                UPC_HEINEKEN);
-        this.wireMockServer.stubFor(get(uriHeineken).willReturn(
-                okJson(beerDtoJsonHeineken)));
-
-        String uriGalaxyCat = getBeerDtoUri(BeerService.BEER_UPC_PATH_V1,
-                UPC_GALAXY_CAT);
-        this.wireMockServer.stubFor(get(uriGalaxyCat).willReturn(
-                okJson(beerDtoJsonGalaxyCat)));
+        this.preparingWireMockStubsForOrderLines();
 
         // When
         UUID beerOrderId = this.beerOrderManager
@@ -131,6 +138,43 @@ class BeerOrderManagerIT {
                     line -> assertThat(line.getOrderQuantity()).isEqualTo(
                             line.getQuantityAllocated()));
         });
+    }
+
+    @Test
+    void test_Given_New_Beer_Order_Then_Ending_As_PickedUp_State() throws Exception {
+
+        // Given
+        this.preparingWireMockStubsForOrderLines();
+        UUID beerOrderId = this.beerOrderManager.newBeerOrder(this.beerOrder)
+                .orElseThrow(IllegalStateException::new);
+
+        await().untilAsserted(() -> {
+            assertThat(this.beerOrderRepository.findById(beerOrderId).
+                    isPresent()).isTrue();
+            BeerOrder allocatedBeerOrder = this.beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(ALLOCATED);
+            allocatedBeerOrder.getBeerOrderLines().forEach(
+                    line -> assertThat(line.getOrderQuantity()).isEqualTo(
+                            line.getQuantityAllocated()));
+        });
+
+        // When
+        this.beerOrderManager.beerOrderPickedUp(beerOrderId);
+
+        // Then
+        await().untilAsserted(() -> {
+            BeerOrder pickedUpOrder = this.beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(pickedUpOrder.getOrderStatus()).isEqualTo(PICKED_UP);
+        });
+    }
+
+    private void preparingWireMockStubsForOrderLines() {
+        this.wireMockServer.stubFor(get(this.orderLineHeinekenUri).willReturn(
+                okJson(this.orderLineHeinekenJson)));
+        this.wireMockServer.stubFor(get(this.orderLineGalaxyCatUri).willReturn(
+                okJson(this.orderLineGalaxyCatJson)));
     }
 
     private BeerOrder createBeerOrder() {

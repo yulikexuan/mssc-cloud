@@ -14,4 +14,6 @@ public interface IBeerOrderManager {
 
     Optional<UUID> newBeerOrder(BeerOrder beerOrder);
 
+    void beerOrderPickedUp(UUID beerOrderId);
+
 }///:~

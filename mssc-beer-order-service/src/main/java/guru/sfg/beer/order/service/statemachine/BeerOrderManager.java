@@ -137,6 +137,20 @@ public class BeerOrderManager implements IBeerOrderManager {
         }
     }
 
+    @Override
+    public void beerOrderPickedUp(UUID beerOrderId) {
+
+        log.debug(">>>>>>> Picking up BeerOrder ... {} ", beerOrderId);
+
+        this.beerOrderRepository.findById(beerOrderId)
+                .ifPresentOrElse(
+                        beerOrder -> this.sendBeerOrderEvent(beerOrder,
+                                BEERORDER_PICKED_UP_EVENT),
+                        () -> new NotFoundException(
+                                String.format(">>>>>>> Beer Order Not Found: %s",
+                                        beerOrderId.toString())));
+    }
+
     private void awaitForOrderStatus(@NonNull UUID beerOrderId,
                                      @NonNull BeerOrderStatusEnum statusEnum) {
 
