@@ -76,3 +76,4 @@ curl -s -w '\n\nTotal: %{time_total} Seconds\n' http://localhost:8081/api/v1/upc
 * [cURL - Write Out](https://ec.haxx.se/usingcurl/usingcurl-verbose/usingcurl-writeout)
 * [cURL - Measure Times](https://stackoverflow.com/questions/18215389/how-do-i-measure-request-and-response-times-at-once-using-curl)
 * [Docker-for-Windows & Hyper-V excluding but not using important port ranges](https://github.com/docker/for-win/issues/3171)
+* [Hands-On Guide to Spring Cloud Contract](https://learning.oreilly.com/videos/hands-on-guide-to/9780135598436)

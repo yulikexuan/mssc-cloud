@@ -5,6 +5,7 @@ package guru.sfg.beer.order.service.statemachine.listener;
 
 
 import guru.sfg.beer.order.service.config.JmsConfig;
+import guru.sfg.brewery.model.BeerOrderDto;
 import guru.sfg.brewery.model.ValidateBeerOrderRequest;
 import guru.sfg.brewery.model.ValidateBeerOrderResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BeerOrderValidationListener {
 
+    public static final String CUSTOMER_REF_HAPPY_PATH = "HAPPY_PATH";
+    public static final String CUSTOMER_REF_FAILED_VALIDATION = "FAILED_VALIDATION";
+
     private final JmsTemplate jmsTemplate;
 
     @JmsListener(destination = JmsConfig.ORDER_VALIDATION_QUEUE_NAME)
@@ -31,12 +35,19 @@ public class BeerOrderValidationListener {
             @Payload ValidateBeerOrderRequest validateBeerOrderRequest,
             Message message) {
 
-        UUID beerOrderId = validateBeerOrderRequest.getBeerOrderDto().getId();
+        BeerOrderDto beerOrderDto = validateBeerOrderRequest.getBeerOrderDto();
+        UUID beerOrderId = beerOrderDto.getId();
 
         log.debug(">>>>>>> Validating Beer Order: {}", beerOrderId);
 
+        boolean isValid = CUSTOMER_REF_FAILED_VALIDATION.equals(
+                beerOrderDto.getCustomerRef()) ? false : true;
+
+        List<String> invalidUpcs = isValid ? List.of() :
+                List.of(beerOrderDto.getBeerOrderLines().get(0).getUpc());
+
         ValidateBeerOrderResponse response = ValidateBeerOrderResponse.of(
-                beerOrderId, List.of());
+                beerOrderId, invalidUpcs);
 
         this.jmsTemplate.convertAndSend(
                 JmsConfig.ORDER_VALIDATION_RESULT_QUEUE_NAME, response);

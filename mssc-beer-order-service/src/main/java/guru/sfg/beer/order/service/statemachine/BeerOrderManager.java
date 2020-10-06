@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Message;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -82,9 +83,12 @@ public class BeerOrderManager implements IBeerOrderManager {
                 isOrderValide);
 
         BeerOrder beerOrder = this.beerOrderRepository.findById(beerOrderId)
-                .orElseThrow(() -> new NotFoundException(
-                        String.format(">>>>>>> Beer Order Not Found: %s",
-                                beerOrderId.toString())));
+                .orElse(null);
+
+        if (Objects.isNull(beerOrder)) {
+            log.error(">>>>>>> Beer Order {} Not Found! ", beerOrderId);
+            return;
+        }
 
         if (isOrderValide) {
             this.sendBeerOrderEvent(beerOrder, VALIDATION_PASSED_EVENT);

@@ -18,6 +18,7 @@ import guru.sfg.beer.order.service.domain.Customer;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
 import guru.sfg.beer.order.service.repositories.CustomerRepository;
 import guru.sfg.beer.order.service.services.beer.BeerService;
+import guru.sfg.beer.order.service.statemachine.listener.BeerOrderValidationListener;
 import guru.sfg.beer.order.service.web.model.BeerDto;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +35,7 @@ import java.util.UUID;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static guru.sfg.beer.order.service.domain.BeerOrderStatusEnum.ALLOCATED;
-import static guru.sfg.beer.order.service.domain.BeerOrderStatusEnum.PICKED_UP;
+import static guru.sfg.beer.order.service.domain.BeerOrderStatusEnum.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -98,11 +98,9 @@ class BeerOrderManagerIT {
     @BeforeEach
     void setUp() throws Exception {
 
-        this.customer = this.customerRepository.save(Customer.builder()
+        this.customer = customerRepository.save(Customer.builder()
                 .customerName("tester")
                 .build());
-
-        this.beerOrder = this.createBeerOrder();
 
         this.orderLineHeineken = getBeerDtoByUpcHeineken();
         this.orderLineHeinekenJson =
@@ -117,57 +115,106 @@ class BeerOrderManagerIT {
                 BeerService.BEER_UPC_PATH_V1, UPC_GALAXY_CAT);
     }
 
-    @Test
-    void test_Given_New_Beer_Order_Then_Ending_As_Allocated_State() throws Exception {
+    @Nested
+    @DisplayName("Test the happy path of BeerOrderManager - ")
+    class HappyPathTest {
 
-        // Given
-        this.preparingWireMockStubsForOrderLines();
+        private static final String CUSTOMER_REF =
+                BeerOrderValidationListener.CUSTOMER_REF_HAPPY_PATH;
 
-        // When
-        UUID beerOrderId = this.beerOrderManager
-                .newBeerOrder(this.beerOrder).orElse(null);
+        @BeforeEach
+        void setUp() throws Exception {
+            beerOrder = createBeerOrder(customer, CUSTOMER_REF);
+        }
 
-        // Then
-        await().untilAsserted(() -> {
-            assertThat(this.beerOrderRepository.findById(beerOrderId).
-                    isPresent()).isTrue();
-            BeerOrder allocatedBeerOrder = this.beerOrderRepository
-                    .findById(beerOrderId).get();
-            assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(ALLOCATED);
-            allocatedBeerOrder.getBeerOrderLines().forEach(
-                    line -> assertThat(line.getOrderQuantity()).isEqualTo(
-                            line.getQuantityAllocated()));
-        });
-    }
+        @Test
+        void test_Given_New_Beer_Order_Then_Ending_As_Allocated_State()
+                throws Exception {
 
-    @Test
-    void test_Given_New_Beer_Order_Then_Ending_As_PickedUp_State() throws Exception {
+            // Given
+            preparingWireMockStubsForOrderLines();
 
-        // Given
-        this.preparingWireMockStubsForOrderLines();
-        UUID beerOrderId = this.beerOrderManager.newBeerOrder(this.beerOrder)
-                .orElseThrow(IllegalStateException::new);
+            // When
+            UUID beerOrderId = beerOrderManager
+                    .newBeerOrder(beerOrder).orElse(null);
 
-        await().untilAsserted(() -> {
-            assertThat(this.beerOrderRepository.findById(beerOrderId).
-                    isPresent()).isTrue();
-            BeerOrder allocatedBeerOrder = this.beerOrderRepository
-                    .findById(beerOrderId).get();
-            assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(ALLOCATED);
-            allocatedBeerOrder.getBeerOrderLines().forEach(
-                    line -> assertThat(line.getOrderQuantity()).isEqualTo(
-                            line.getQuantityAllocated()));
-        });
+            // Then
+            await().untilAsserted(() -> {
+                assertThat(beerOrderRepository.findById(beerOrderId).
+                        isPresent()).isTrue();
+                BeerOrder allocatedBeerOrder = beerOrderRepository
+                        .findById(beerOrderId).get();
+                assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(ALLOCATED);
+                allocatedBeerOrder.getBeerOrderLines().forEach(
+                        line -> assertThat(line.getOrderQuantity()).isEqualTo(
+                                line.getQuantityAllocated()));
+            });
+        }
 
-        // When
-        this.beerOrderManager.beerOrderPickedUp(beerOrderId);
+        @Test
+        void test_Given_New_Beer_Order_Then_Ending_As_PickedUp_State()
+                throws Exception {
 
-        // Then
-        await().untilAsserted(() -> {
-            BeerOrder pickedUpOrder = this.beerOrderRepository
-                    .findById(beerOrderId).get();
-            assertThat(pickedUpOrder.getOrderStatus()).isEqualTo(PICKED_UP);
-        });
+            // Given
+            preparingWireMockStubsForOrderLines();
+            UUID beerOrderId = beerOrderManager.newBeerOrder(beerOrder)
+                    .orElseThrow(IllegalStateException::new);
+
+            await().untilAsserted(() -> {
+                assertThat(beerOrderRepository.findById(beerOrderId).
+                        isPresent()).isTrue();
+                BeerOrder allocatedBeerOrder = beerOrderRepository
+                        .findById(beerOrderId).get();
+                assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(ALLOCATED);
+                allocatedBeerOrder.getBeerOrderLines().forEach(
+                        line -> assertThat(line.getOrderQuantity()).isEqualTo(
+                                line.getQuantityAllocated()));
+            });
+
+            // When
+            beerOrderManager.beerOrderPickedUp(beerOrderId);
+
+            // Then
+            await().untilAsserted(() -> {
+                BeerOrder pickedUpOrder = beerOrderRepository
+                        .findById(beerOrderId).get();
+                assertThat(pickedUpOrder.getOrderStatus()).isEqualTo(PICKED_UP);
+            });
+        }
+
+    }//: End of HappyPathTest
+
+    @Nested
+    @DisplayName("Test Failed Saga Calls - ")
+    class SagaFailedTest {
+
+        private static final String CUSTOMER_REF =
+                BeerOrderValidationListener.CUSTOMER_REF_FAILED_VALIDATION;
+
+        @BeforeEach
+        void setUp() throws Exception {
+            beerOrder = createBeerOrder(customer, CUSTOMER_REF);
+        }
+
+        @Test
+        void test_Given_New_Beer_Order_Then_Ending_As_VALIDATION_EXCEPTION_State()
+                throws Exception {
+
+            // Given
+            preparingWireMockStubsForOrderLines();
+
+            UUID beerOrderId = beerOrderManager.newBeerOrder(beerOrder)
+                    .orElseThrow(IllegalStateException::new);
+
+            // Then
+            await().untilAsserted(() -> {
+                BeerOrder invalidOrder = beerOrderRepository
+                        .findById(beerOrderId).get();
+                assertThat(invalidOrder.getOrderStatus()).isEqualTo(
+                        VALIDATION_EXCEPTION);
+            });
+        }
+
     }
 
     private void preparingWireMockStubsForOrderLines() {
@@ -177,7 +224,9 @@ class BeerOrderManagerIT {
                 okJson(this.orderLineGalaxyCatJson)));
     }
 
-    private BeerOrder createBeerOrder() {
+    private BeerOrder createBeerOrder(
+            @NonNull final Customer customer,
+            @NonNull final String customerRef) {
 
         BeerOrderLine line_1 = BeerOrderLine.builder()
                 .upc(UPC_HEINEKEN)
@@ -194,7 +243,8 @@ class BeerOrderManagerIT {
         lines.add(line_2);
 
         this.beerOrder = BeerOrder.builder()
-                .customer(this.customer)
+                .customer(customer)
+                .customerRef(customerRef)
                 .beerOrderLines(lines)
                 .build();
 
