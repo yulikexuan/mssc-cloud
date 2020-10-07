@@ -18,7 +18,6 @@ import guru.sfg.beer.order.service.domain.Customer;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
 import guru.sfg.beer.order.service.repositories.CustomerRepository;
 import guru.sfg.beer.order.service.services.beer.BeerService;
-import guru.sfg.beer.order.service.statemachine.listener.BeerOrderValidationListener;
 import guru.sfg.beer.order.service.web.model.BeerDto;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +35,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static guru.sfg.beer.order.service.domain.BeerOrderStatusEnum.*;
+import static guru.sfg.beer.order.service.statemachine.listener.CustomerReferences.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -119,8 +119,7 @@ class BeerOrderManagerIT {
     @DisplayName("Test the happy path of BeerOrderManager - ")
     class HappyPathTest {
 
-        private static final String CUSTOMER_REF =
-                BeerOrderValidationListener.CUSTOMER_REF_HAPPY_PATH;
+        private static final String CUSTOMER_REF = CUSTOMER_REF_HAPPY_PATH;
 
         @BeforeEach
         void setUp() throws Exception {
@@ -188,12 +187,8 @@ class BeerOrderManagerIT {
     @DisplayName("Test Failed Saga Calls - ")
     class SagaFailedTest {
 
-        private static final String CUSTOMER_REF =
-                BeerOrderValidationListener.CUSTOMER_REF_FAILED_VALIDATION;
-
         @BeforeEach
         void setUp() throws Exception {
-            beerOrder = createBeerOrder(customer, CUSTOMER_REF);
         }
 
         @Test
@@ -202,6 +197,8 @@ class BeerOrderManagerIT {
 
             // Given
             preparingWireMockStubsForOrderLines();
+
+            beerOrder = createBeerOrder(customer, CUSTOMER_REF_FAILED_VALIDATION);
 
             UUID beerOrderId = beerOrderManager.newBeerOrder(beerOrder)
                     .orElseThrow(IllegalStateException::new);
@@ -215,6 +212,55 @@ class BeerOrderManagerIT {
             });
         }
 
+        @Test
+        void test_Given_New_Beer_Order_Then_Ending_As_ALLOCATION_EXCEPTION_State()
+            throws Exception {
+
+            // Given
+            preparingWireMockStubsForOrderLines();
+
+            beerOrder = createBeerOrder(customer, CUSTOMER_REF_FAILED_ALLOCATION);
+
+            // When
+            UUID beerOrderId = beerOrderManager
+                    .newBeerOrder(beerOrder).orElse(null);
+
+            // Then
+            await().untilAsserted(() -> {
+                assertThat(beerOrderRepository.findById(beerOrderId).
+                        isPresent()).isTrue();
+                BeerOrder allocatedBeerOrder = beerOrderRepository
+                        .findById(beerOrderId).get();
+                assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(
+                        ALLOCATION_EXCEPTION);
+            });
+        }
+
+        @Test
+        void test_Given_New_Beer_Order_Then_Ending_As_PENDING_INVENTORY_State()
+                throws Exception {
+
+            // Given
+            preparingWireMockStubsForOrderLines();
+
+            beerOrder = createBeerOrder(customer, CUSTOMER_REF_PENDING_INVENTORY,
+                    true);
+
+            // When
+            UUID beerOrderId = beerOrderManager
+                    .newBeerOrder(beerOrder).orElse(null);
+
+            // Then
+            await().untilAsserted(() -> {
+                assertThat(beerOrderRepository.findById(beerOrderId).
+                        isPresent()).isTrue();
+                BeerOrder allocatedBeerOrder = beerOrderRepository
+                        .findById(beerOrderId).get();
+                assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(
+                        PENDING_INVENTORY);
+            });
+        }
+
     }
 
     private void preparingWireMockStubsForOrderLines() {
@@ -224,18 +270,27 @@ class BeerOrderManagerIT {
                 okJson(this.orderLineGalaxyCatJson)));
     }
 
+    private BeerOrder createBeerOrder(@NonNull final Customer customer,
+                                      @NonNull final String customerRef) {
+
+        return createBeerOrder(customer, customerRef, false);
+    }
+
     private BeerOrder createBeerOrder(
             @NonNull final Customer customer,
-            @NonNull final String customerRef) {
+            @NonNull final String customerRef,
+            boolean pendingInventory) {
 
         BeerOrderLine line_1 = BeerOrderLine.builder()
                 .upc(UPC_HEINEKEN)
                 .orderQuantity(50)
+                .quantityAllocated(50)
                 .build();
 
         BeerOrderLine line_2 = BeerOrderLine.builder()
                 .upc(UPC_GALAXY_CAT)
                 .orderQuantity(40)
+                .quantityAllocated(pendingInventory ? 20 : 40)
                 .build();
 
         Set<BeerOrderLine> lines = Sets.newHashSet();

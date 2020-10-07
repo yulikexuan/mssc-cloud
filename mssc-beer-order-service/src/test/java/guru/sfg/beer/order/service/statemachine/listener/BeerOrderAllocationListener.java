@@ -31,13 +31,26 @@ public class BeerOrderAllocationListener {
             @Payload AllocateBeerOrderRequest allocateBeerOrderRequest,
             Message message) {
 
-        log.debug(">>>>>>> [IT] Processing beer order allocation ... ...");
+        BeerOrderDto beerOrderDto = Objects.requireNonNull(
+                allocateBeerOrderRequest.getBeerOrderDto());
+
+        log.debug(">>>>>>> [IT] Processing beer order allocation {} ... ...",
+                beerOrderDto.getId());
+
+        boolean hasAllocationError =
+                CustomerReferences.CUSTOMER_REF_FAILED_ALLOCATION
+                        .equals(beerOrderDto.getCustomerRef());
+
+        boolean isPendingInventory = false;
+
+        if (!hasAllocationError) {
+            isPendingInventory =
+                CustomerReferences.CUSTOMER_REF_PENDING_INVENTORY
+                        .equals(beerOrderDto.getCustomerRef());
+        }
 
         AllocateBeerOrderResponse.AllocateBeerOrderResponseBuilder builder =
                 AllocateBeerOrderResponse.builder();
-
-        BeerOrderDto beerOrderDto = Objects.requireNonNull(
-                allocateBeerOrderRequest.getBeerOrderDto());
 
         beerOrderDto.getBeerOrderLines().stream()
                 .forEach(line -> {
@@ -45,8 +58,8 @@ public class BeerOrderAllocationListener {
                 });
 
         builder.beerOrderDto(beerOrderDto);
-        builder.pendingInventory(false);
-        builder.allocationError(false);
+        builder.pendingInventory(isPendingInventory);
+        builder.allocationError(hasAllocationError);
 
         this.jmsTemplate.convertAndSend(
                 JmsConfig.ORDER_ALLOCATION_RESPONSE_QUEUE_NAME,

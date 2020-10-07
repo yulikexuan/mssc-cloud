@@ -25,9 +25,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BeerOrderValidationListener {
 
-    public static final String CUSTOMER_REF_HAPPY_PATH = "HAPPY_PATH";
-    public static final String CUSTOMER_REF_FAILED_VALIDATION = "FAILED_VALIDATION";
-
     private final JmsTemplate jmsTemplate;
 
     @JmsListener(destination = JmsConfig.ORDER_VALIDATION_QUEUE_NAME)
@@ -40,8 +37,8 @@ public class BeerOrderValidationListener {
 
         log.debug(">>>>>>> Validating Beer Order: {}", beerOrderId);
 
-        boolean isValid = CUSTOMER_REF_FAILED_VALIDATION.equals(
-                beerOrderDto.getCustomerRef()) ? false : true;
+        boolean isValid = !CustomerReferences.CUSTOMER_REF_FAILED_VALIDATION
+                .equals(beerOrderDto.getCustomerRef());
 
         List<String> invalidUpcs = isValid ? List.of() :
                 List.of(beerOrderDto.getBeerOrderLines().get(0).getUpc());
