@@ -36,7 +36,7 @@ public class BeerOrder {
     @UpdateTimestamp
     private Timestamp lastModifiedDate;
 
-    private String customerRef;
+private String customerRef;
 
     @ManyToOne
     private Customer customer;

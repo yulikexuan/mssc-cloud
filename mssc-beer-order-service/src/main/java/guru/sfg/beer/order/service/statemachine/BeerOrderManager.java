@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static guru.sfg.beer.order.service.domain.BeerOrderEventEnum.*;
 import static guru.sfg.beer.order.service.domain.BeerOrderStatusEnum.*;
-
+import static guru.sfg.beer.order.service.domain.CustomerReferences.*;
 
 @Slf4j
 @Service
@@ -70,6 +70,44 @@ public class BeerOrderManager implements IBeerOrderManager {
         return Optional.ofNullable(beerOrder.getId());
     }
 
+    @Override
+    @Transactional
+    public void beerOrderPickedUp(UUID beerOrderId) {
+
+        log.debug(">>>>>>> Picking up BeerOrder ... {} ", beerOrderId);
+
+        this.beerOrderRepository.findById(beerOrderId)
+                .ifPresentOrElse(
+                        beerOrder -> {
+                            if (!beerOrder.getOrderStatus().equals(ALLOCATED)) {
+                                String errMsg = String.format(
+                                        ">>>>>>> The current order status " +
+                                                "is invalid for picking up: {}",
+                                        beerOrder.getId()
+                                );
+                                throw new IllegalStateException(errMsg);
+                            }
+                            this.sendBeerOrderEvent(beerOrder,
+                                    BEERORDER_PICKED_UP_EVENT); },
+                        () -> new NotFoundException(
+                                String.format(">>>>>>> Beer Order Not Found: %s",
+                                        beerOrderId.toString())));
+    }
+
+    @Override
+    @Transactional
+    public void beerOrderCanceled(UUID beerOrderId) {
+
+        log.debug(">>>>>>> Canceling BeerOrder ... {} ", beerOrderId);
+
+        this.beerOrderRepository.findById(beerOrderId)
+                .ifPresentOrElse(
+                        beerOrder -> this.sendBeerOrderEvent(beerOrder, CANCEL_ORDER_EVENT),
+                        () -> new NotFoundException(
+                                String.format(">>>>>>> Beer Order Not Found: %s",
+                                        beerOrderId.toString())));
+    }
+
     @Transactional
     @JmsListener(destination = JmsConfig.ORDER_VALIDATION_RESULT_QUEUE_NAME)
     void listenToBeerOrderValidationResult(
@@ -87,16 +125,23 @@ public class BeerOrderManager implements IBeerOrderManager {
 
         if (Objects.isNull(beerOrder)) {
             log.error(">>>>>>> Beer Order {} Not Found! ", beerOrderId);
-            return;
         }
 
         if (isOrderValide) {
+
             this.sendBeerOrderEvent(beerOrder, VALIDATION_PASSED_EVENT);
+
             BeerOrder validatedBeerOrder =
                     this.beerOrderRepository.findById(beerOrderId)
                     .orElseThrow(() -> new NotFoundException(
                             String.format(">>>>>>> Beer Order Not Found: %s",
                                     beerOrderId.toString())));
+
+            if (CUSTOMER_REF_NO_ALLOCATION_EVENT.equals(
+                    validatedBeerOrder.getCustomerRef())) {
+                return;
+            }
+
             this.sendBeerOrderEvent(validatedBeerOrder, ALLOCATE_ORDER_EVENT);
         } else {
             this.sendBeerOrderEvent(beerOrder, VALIDATION_FAILED_EVENT);
@@ -139,29 +184,6 @@ public class BeerOrderManager implements IBeerOrderManager {
             this.awaitForOrderStatus(beerOrderId, expectedStatus);
             this.updateAllocatedQty(response.getBeerOrderDto());
         }
-    }
-
-    @Override
-    public void beerOrderPickedUp(UUID beerOrderId) {
-
-        log.debug(">>>>>>> Picking up BeerOrder ... {} ", beerOrderId);
-
-        this.beerOrderRepository.findById(beerOrderId)
-                .ifPresentOrElse(
-                        beerOrder -> {
-                            if (!beerOrder.getOrderStatus().equals(ALLOCATED)) {
-                                String errMsg = String.format(
-                                        ">>>>>>> The current order status " +
-                                                "is invalid for picking up: {}",
-                                        beerOrder.getId()
-                                );
-                                throw new IllegalStateException("");
-                            }
-                            this.sendBeerOrderEvent(beerOrder,
-                                BEERORDER_PICKED_UP_EVENT); },
-                        () -> new NotFoundException(
-                                String.format(">>>>>>> Beer Order Not Found: %s",
-                                        beerOrderId.toString())));
     }
 
     private void awaitForOrderStatus(@NonNull UUID beerOrderId,

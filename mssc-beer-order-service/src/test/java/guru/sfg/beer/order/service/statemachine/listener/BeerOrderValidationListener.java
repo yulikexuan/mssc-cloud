@@ -5,6 +5,7 @@ package guru.sfg.beer.order.service.statemachine.listener;
 
 
 import guru.sfg.beer.order.service.config.JmsConfig;
+import guru.sfg.beer.order.service.domain.CustomerReferences;
 import guru.sfg.brewery.model.BeerOrderDto;
 import guru.sfg.brewery.model.ValidateBeerOrderRequest;
 import guru.sfg.brewery.model.ValidateBeerOrderResponse;
@@ -33,12 +34,19 @@ public class BeerOrderValidationListener {
             Message message) {
 
         BeerOrderDto beerOrderDto = validateBeerOrderRequest.getBeerOrderDto();
+
+        String customerRef = beerOrderDto.getCustomerRef();
+
+        if (CustomerReferences.CUSTOMER_REF_NO_VALIDATION.equals(customerRef)) {
+            return;
+        }
+
         UUID beerOrderId = beerOrderDto.getId();
 
         log.debug(">>>>>>> Validating Beer Order: {}", beerOrderId);
 
         boolean isValid = !CustomerReferences.CUSTOMER_REF_FAILED_VALIDATION
-                .equals(beerOrderDto.getCustomerRef());
+                .equals(customerRef);
 
         List<String> invalidUpcs = isValid ? List.of() :
                 List.of(beerOrderDto.getBeerOrderLines().get(0).getUpc());

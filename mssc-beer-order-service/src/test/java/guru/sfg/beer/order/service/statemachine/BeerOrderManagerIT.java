@@ -38,7 +38,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static guru.sfg.beer.order.service.domain.BeerOrderStatusEnum.*;
-import static guru.sfg.beer.order.service.statemachine.listener.CustomerReferences.*;
+import static guru.sfg.beer.order.service.domain.CustomerReferences.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -73,8 +73,6 @@ class BeerOrderManagerIT {
     Options options = wireMockConfig()
             .port(8099)
             .notifier(new ConsoleNotifier(true));
-
-    private BeerOrder beerOrder;
 
     @Autowired
     private BeerOrderManager beerOrderManager;
@@ -121,159 +119,266 @@ class BeerOrderManagerIT {
                 BeerService.BEER_UPC_PATH_V1, UPC_GALAXY_CAT);
     }
 
-    @Nested
-    @DisplayName("Test the happy path of BeerOrderManager - ")
-    class HappyPathTest {
-
-        private static final String CUSTOMER_REF = CUSTOMER_REF_HAPPY_PATH;
-
-        @BeforeEach
-        void setUp() throws Exception {
-            beerOrder = createBeerOrder(customer, CUSTOMER_REF);
-        }
-
-        @Test
-        void test_Given_New_Beer_Order_Then_Ending_As_Allocated_State()
-                throws Exception {
-
-            // Given
-            preparingWireMockStubsForOrderLines();
-
-            // When
-            UUID beerOrderId = beerOrderManager
-                    .newBeerOrder(beerOrder).orElse(null);
-
-            // Then
-            await().untilAsserted(() -> {
-                assertThat(beerOrderRepository.findById(beerOrderId).
-                        isPresent()).isTrue();
-                BeerOrder allocatedBeerOrder = beerOrderRepository
-                        .findById(beerOrderId).get();
-                assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(ALLOCATED);
-                allocatedBeerOrder.getBeerOrderLines().forEach(
-                        line -> assertThat(line.getOrderQuantity()).isEqualTo(
-                                line.getQuantityAllocated()));
-            });
-        }
-
-        @Test
-        void test_Given_New_Beer_Order_Then_Ending_As_PickedUp_State()
-                throws Exception {
-
-            // Given
-            preparingWireMockStubsForOrderLines();
-            UUID beerOrderId = beerOrderManager.newBeerOrder(beerOrder)
-                    .orElseThrow(IllegalStateException::new);
-
-            await().untilAsserted(() -> {
-                assertThat(beerOrderRepository.findById(beerOrderId).
-                        isPresent()).isTrue();
-                BeerOrder allocatedBeerOrder = beerOrderRepository
-                        .findById(beerOrderId).get();
-                assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(ALLOCATED);
-                allocatedBeerOrder.getBeerOrderLines().forEach(
-                        line -> assertThat(line.getOrderQuantity()).isEqualTo(
-                                line.getQuantityAllocated()));
-            });
-
-            // When
-            beerOrderManager.beerOrderPickedUp(beerOrderId);
-
-            // Then
-            await().untilAsserted(() -> {
-                BeerOrder pickedUpOrder = beerOrderRepository
-                        .findById(beerOrderId).get();
-                assertThat(pickedUpOrder.getOrderStatus()).isEqualTo(PICKED_UP);
-            });
-        }
-
-    }//: End of HappyPathTest
-
-    @Nested
-    @DisplayName("Test Failed Saga Calls - ")
-    class SagaFailedTest {
-
-        @BeforeEach
-        void setUp() throws Exception {
-        }
-
-        @Test
-        void test_Given_New_Beer_Order_Then_Ending_As_VALIDATION_EXCEPTION_State()
-                throws Exception {
-
-            // Given
-            preparingWireMockStubsForOrderLines();
-
-            beerOrder = createBeerOrder(customer, CUSTOMER_REF_FAILED_VALIDATION);
-
-            UUID beerOrderId = beerOrderManager.newBeerOrder(beerOrder)
-                    .orElseThrow(IllegalStateException::new);
-
-            // Then
-            await().untilAsserted(() -> {
-                BeerOrder invalidOrder = beerOrderRepository
-                        .findById(beerOrderId).get();
-                assertThat(invalidOrder.getOrderStatus()).isEqualTo(
-                        VALIDATION_EXCEPTION);
-            });
-        }
-
-        @Test
-        void test_Given_New_Beer_Order_Then_Ending_As_ALLOCATION_EXCEPTION_State()
+    @Test
+    void test_Given_New_Beer_Order_Then_Ending_As_Allocated_State()
             throws Exception {
 
-            // Given
-            preparingWireMockStubsForOrderLines();
+        // Given
+        preparingWireMockStubsForOrderLines();
 
-            beerOrder = createBeerOrder(customer, CUSTOMER_REF_FAILED_ALLOCATION);
+        BeerOrder beerOrder = createBeerOrder(customer, CUSTOMER_REF_HAPPY_PATH);
 
-            // When
-            UUID beerOrderId = beerOrderManager
-                    .newBeerOrder(beerOrder).orElse(null);
+        // When
+        UUID beerOrderId = beerOrderManager
+                .newBeerOrder(beerOrder).orElse(null);
 
-            // Then
-            await().untilAsserted(() -> {
-                assertThat(beerOrderRepository.findById(beerOrderId).
-                        isPresent()).isTrue();
-                BeerOrder allocatedBeerOrder = beerOrderRepository
-                        .findById(beerOrderId).get();
-                assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(
-                        ALLOCATION_EXCEPTION);
-                String destination = JmsConfig
-                        .ORDER_ALLOCATION_FAILURE_TX_REQUEST_QUEUE_NAME;
-                AllocationFailureTransactionRequest txRequest =
-                        (AllocationFailureTransactionRequest) jmsTemplate
-                                .receiveAndConvert(destination);
-                UUID failedBeerOrderId = txRequest.getBeerOrderId();
-                assertThat(failedBeerOrderId).isEqualTo(beerOrderId);
-            });
-        }
+        // Then
+        await().untilAsserted(() -> {
+            assertThat(beerOrderRepository.findById(beerOrderId).
+                    isPresent()).isTrue();
+            BeerOrder allocatedBeerOrder = beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(ALLOCATED);
+            allocatedBeerOrder.getBeerOrderLines().forEach(
+                    line -> assertThat(line.getOrderQuantity()).isEqualTo(
+                            line.getQuantityAllocated()));
+        });
+    }
 
-        @Test
-        void test_Given_New_Beer_Order_Then_Ending_As_PENDING_INVENTORY_State()
-                throws Exception {
+    @Test
+    void test_Given_New_Beer_Order_Then_Ending_As_PickedUp_State()
+            throws Exception {
 
-            // Given
-            preparingWireMockStubsForOrderLines();
+        // Given
+        preparingWireMockStubsForOrderLines();
 
-            beerOrder = createBeerOrder(customer, CUSTOMER_REF_PENDING_INVENTORY,
-                    true);
+        BeerOrder beerOrder = createBeerOrder(customer, CUSTOMER_REF_HAPPY_PATH);
 
-            // When
-            UUID beerOrderId = beerOrderManager
-                    .newBeerOrder(beerOrder).orElse(null);
+        UUID beerOrderId = beerOrderManager.newBeerOrder(beerOrder)
+                .orElseThrow(IllegalStateException::new);
 
-            // Then
-            await().untilAsserted(() -> {
-                assertThat(beerOrderRepository.findById(beerOrderId).
-                        isPresent()).isTrue();
-                BeerOrder allocatedBeerOrder = beerOrderRepository
-                        .findById(beerOrderId).get();
-                assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(
-                        PENDING_INVENTORY);
-            });
-        }
+        await().untilAsserted(() -> {
+            assertThat(beerOrderRepository.findById(beerOrderId).
+                    isPresent()).isTrue();
+            BeerOrder allocatedBeerOrder = beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(ALLOCATED);
+            allocatedBeerOrder.getBeerOrderLines().forEach(
+                    line -> assertThat(line.getOrderQuantity()).isEqualTo(
+                            line.getQuantityAllocated()));
+        });
 
+        // When
+        beerOrderManager.beerOrderPickedUp(beerOrderId);
+
+        // Then
+        await().untilAsserted(() -> {
+            BeerOrder pickedUpOrder = beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(pickedUpOrder.getOrderStatus()).isEqualTo(PICKED_UP);
+        });
+    }
+
+    @Test
+    void test_Given_New_Beer_Order_Then_Ending_As_VALIDATION_EXCEPTION_State()
+            throws Exception {
+
+        // Given
+        preparingWireMockStubsForOrderLines();
+
+        BeerOrder beerOrder = createBeerOrder(customer, CUSTOMER_REF_FAILED_VALIDATION);
+
+        UUID beerOrderId = beerOrderManager.newBeerOrder(beerOrder)
+                .orElseThrow(IllegalStateException::new);
+
+        // Then
+        await().untilAsserted(() -> {
+            BeerOrder invalidOrder = beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(invalidOrder.getOrderStatus()).isEqualTo(
+                    VALIDATION_EXCEPTION);
+        });
+    }
+
+    @Test
+    void test_Given_New_Beer_Order_Then_Ending_As_ALLOCATION_EXCEPTION_State()
+            throws Exception {
+
+        // Given
+        preparingWireMockStubsForOrderLines();
+
+        BeerOrder beerOrder = createBeerOrder(customer, CUSTOMER_REF_FAILED_ALLOCATION);
+
+        // When
+        UUID beerOrderId = beerOrderManager
+                .newBeerOrder(beerOrder).orElse(null);
+
+        // Then
+        await().untilAsserted(() -> {
+            assertThat(beerOrderRepository.findById(beerOrderId).
+                    isPresent()).isTrue();
+            BeerOrder allocatedBeerOrder = beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(
+                    ALLOCATION_EXCEPTION);
+            String destination = JmsConfig
+                    .ORDER_ALLOCATION_FAILURE_TX_REQUEST_QUEUE_NAME;
+            AllocationFailureTransactionRequest txRequest =
+                    (AllocationFailureTransactionRequest) jmsTemplate
+                            .receiveAndConvert(destination);
+            UUID failedBeerOrderId = txRequest.getBeerOrderId();
+            assertThat(failedBeerOrderId).isEqualTo(beerOrderId);
+        });
+    }
+
+    @Test
+    void test_Given_New_Beer_Order_Then_Ending_As_PENDING_INVENTORY_State()
+            throws Exception {
+
+        // Given
+        preparingWireMockStubsForOrderLines();
+
+        BeerOrder beerOrder = createBeerOrder(customer, CUSTOMER_REF_PENDING_INVENTORY,
+                true);
+
+        // When
+        UUID beerOrderId = beerOrderManager
+                .newBeerOrder(beerOrder).orElse(null);
+
+        // Then
+        await().untilAsserted(() -> {
+            assertThat(beerOrderRepository.findById(beerOrderId).
+                    isPresent()).isTrue();
+            BeerOrder allocatedBeerOrder = beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(
+                    PENDING_INVENTORY);
+        });
+    }
+
+    @Test
+    void test_Given_New_Beer_Order_Then_Ending_As_Canceled_State()
+            throws Exception {
+
+        // Given
+        preparingWireMockStubsForOrderLines();
+
+        BeerOrder beerOrder = createBeerOrder(customer, CUSTOMER_REF_NO_VALIDATION);
+
+        UUID beerOrderId = beerOrderManager.newBeerOrder(beerOrder)
+                .orElseThrow(IllegalStateException::new);
+
+        await().untilAsserted(() -> {
+            BeerOrder invalidOrder = beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(invalidOrder.getOrderStatus()).isEqualTo(VALIDATION_PENDING);
+        });
+
+        // When
+        beerOrderManager.beerOrderCanceled(beerOrderId);
+
+        // Then
+        await().untilAsserted(() -> {
+            BeerOrder invalidOrder = beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(invalidOrder.getOrderStatus()).isEqualTo(CANCELLED);
+        });
+
+    }
+
+    @Test
+    void test_Given_Validated_Beer_Order_Then_Ending_As_Canceled_State()
+            throws Exception {
+
+        // Given
+        preparingWireMockStubsForOrderLines();
+
+        BeerOrder beerOrder = createBeerOrder(customer,
+                CUSTOMER_REF_NO_ALLOCATION_EVENT);
+
+        UUID beerOrderId = beerOrderManager.newBeerOrder(beerOrder)
+                .orElseThrow(IllegalStateException::new);
+
+        await().untilAsserted(() -> {
+            BeerOrder validatedOrder = beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(validatedOrder.getOrderStatus()).isEqualTo(VALIDATED);
+        });
+
+        // When
+        beerOrderManager.beerOrderCanceled(beerOrderId);
+
+        // Then
+        await().untilAsserted(() -> {
+            BeerOrder canceledOrder = beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(canceledOrder.getOrderStatus()).isEqualTo(CANCELLED);
+        });
+    }
+
+    @Test
+    void test_Given_Allocation_Pending_Beer_Order_Then_Ending_As_Canceled_State()
+            throws Exception {
+
+        // Given
+        preparingWireMockStubsForOrderLines();
+
+        BeerOrder beerOrder = createBeerOrder(customer,
+                CUSTOMER_REF_NO_ALLOCATION_ACTION);
+
+        UUID beerOrderId = beerOrderManager.newBeerOrder(beerOrder)
+                .orElseThrow(IllegalStateException::new);
+
+        await().untilAsserted(() -> {
+            BeerOrder pendingAllocationOrder = beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(pendingAllocationOrder.getOrderStatus())
+                    .isEqualTo(ALLOCATION_PENDING);
+        });
+
+        // When
+        beerOrderManager.beerOrderCanceled(beerOrderId);
+
+        // Then
+        await().untilAsserted(() -> {
+            BeerOrder canceledOrder = beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(canceledOrder.getOrderStatus()).isEqualTo(CANCELLED);
+        });
+    }
+
+    @Test
+    void test_Given_Allocated_Beer_Order_Then_Ending_As_Canceled_State()
+            throws Exception {
+
+        // Given
+        preparingWireMockStubsForOrderLines();
+
+        BeerOrder beerOrder = createBeerOrder(customer, CUSTOMER_REF_HAPPY_PATH);
+
+        UUID beerOrderId = beerOrderManager
+                .newBeerOrder(beerOrder).orElse(null);
+
+        await().untilAsserted(() -> {
+            assertThat(beerOrderRepository.findById(beerOrderId).
+                    isPresent()).isTrue();
+            BeerOrder allocatedBeerOrder = beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(ALLOCATED);
+            allocatedBeerOrder.getBeerOrderLines().forEach(
+                    line -> assertThat(line.getOrderQuantity()).isEqualTo(
+                            line.getQuantityAllocated()));
+        });
+
+        // When
+        beerOrderManager.beerOrderCanceled(beerOrderId);
+
+        // Then
+        await().untilAsserted(() -> {
+            BeerOrder canceledOrder = beerOrderRepository
+                    .findById(beerOrderId).get();
+            assertThat(canceledOrder.getOrderStatus()).isEqualTo(CANCELLED);
+        });
     }
 
     private void preparingWireMockStubsForOrderLines() {
@@ -310,16 +415,16 @@ class BeerOrderManagerIT {
         lines.add(line_1);
         lines.add(line_2);
 
-        this.beerOrder = BeerOrder.builder()
+        BeerOrder beerOrder = BeerOrder.builder()
                 .customer(customer)
                 .customerRef(customerRef)
                 .beerOrderLines(lines)
                 .build();
 
-        line_1.setBeerOrder(this.beerOrder);
-        line_2.setBeerOrder(this.beerOrder);
+        line_1.setBeerOrder(beerOrder);
+        line_2.setBeerOrder(beerOrder);
 
-        return this.beerOrder;
+        return beerOrder;
     }
 
     private BeerDto getBeerDtoByUpcHeineken() {

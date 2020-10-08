@@ -16,4 +16,6 @@ public interface IBeerOrderManager {
 
     void beerOrderPickedUp(UUID beerOrderId);
 
+    void beerOrderCanceled(UUID beerOrderId);
+
 }///:~

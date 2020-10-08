@@ -5,6 +5,7 @@ package guru.sfg.beer.order.service.statemachine.listener;
 
 
 import guru.sfg.beer.order.service.config.JmsConfig;
+import guru.sfg.beer.order.service.domain.CustomerReferences;
 import guru.sfg.brewery.model.AllocateBeerOrderRequest;
 import guru.sfg.brewery.model.AllocateBeerOrderResponse;
 import guru.sfg.brewery.model.BeerOrderDto;

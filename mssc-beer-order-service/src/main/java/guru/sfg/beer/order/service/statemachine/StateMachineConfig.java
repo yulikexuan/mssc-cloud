@@ -40,6 +40,9 @@ public class StateMachineConfig extends
     private final Action<BeerOrderStatusEnum, BeerOrderEventEnum>
             allocationFailureTransactionRequestAction;
 
+    private final Action<BeerOrderStatusEnum, BeerOrderEventEnum>
+            deallocateBeerOrderAction;
+
     @Override
     public void configure(
             StateMachineStateConfigurer<BeerOrderStatusEnum, BeerOrderEventEnum>
@@ -103,10 +106,22 @@ public class StateMachineConfig extends
                 .and()
                 // -------------------------------------------------------------
                 .withExternal()
+                .source(VALIDATION_PENDING)
+                .target(CANCELLED)
+                .event(CANCEL_ORDER_EVENT)
+                .and()
+                // -------------------------------------------------------------
+                .withExternal()
                 .source(VALIDATED)
                 .target(ALLOCATION_PENDING)
                 .event(ALLOCATE_ORDER_EVENT)
                 .action(allocateBeerOrderAction)
+                .and()
+                // -------------------------------------------------------------
+                .withExternal()
+                .source(VALIDATED)
+                .target(CANCELLED)
+                .event(CANCEL_ORDER_EVENT)
                 // -------------------------------------------------------------
                 .and()
                 .withExternal()
@@ -129,9 +144,22 @@ public class StateMachineConfig extends
                 // -------------------------------------------------------------
                 .and()
                 .withExternal()
+                .source(ALLOCATION_PENDING)
+                .target(CANCELLED)
+                .event(CANCEL_ORDER_EVENT)
+                // -------------------------------------------------------------
+                .and()
+                .withExternal()
                 .source(ALLOCATED)
                 .target(PICKED_UP)
-                .event(BEERORDER_PICKED_UP_EVENT);
+                .event(BEERORDER_PICKED_UP_EVENT)
+                // -------------------------------------------------------------
+                .and()
+                .withExternal()
+                .source(ALLOCATED)
+                .target(CANCELLED)
+                .event(CANCEL_ORDER_EVENT)
+                .action(deallocateBeerOrderAction);
     }
 
 }///:~

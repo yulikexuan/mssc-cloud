@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 import static guru.sfg.beer.order.service.domain.BeerOrderEventEnum.ALLOCATE_ORDER_EVENT;
+import static guru.sfg.beer.order.service.domain.CustomerReferences.CUSTOMER_REF_NO_ALLOCATION_ACTION;
 
 
 @Slf4j
@@ -48,6 +49,11 @@ public class AllocateBeerOrderAction implements
                 .orElseThrow(() -> new NotFoundException(
                         String.format(">>>>>>> Beer Order Not Found: %s",
                                 beerOrderId.toString())));
+
+        String customerRef = beerOrder.getCustomerRef();
+        if (CUSTOMER_REF_NO_ALLOCATION_ACTION.equals(customerRef)) {
+            return;
+        }
 
         BeerOrderDto beerOrderDto = this.beerOrderMapper.beerOrderToDto(beerOrder);
 
