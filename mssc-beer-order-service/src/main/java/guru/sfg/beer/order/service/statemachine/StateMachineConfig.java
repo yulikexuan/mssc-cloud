@@ -37,6 +37,9 @@ public class StateMachineConfig extends
     private final Action<BeerOrderStatusEnum, BeerOrderEventEnum>
             validationFailureAction;
 
+    private final Action<BeerOrderStatusEnum, BeerOrderEventEnum>
+            allocationFailureTransactionRequestAction;
+
     @Override
     public void configure(
             StateMachineStateConfigurer<BeerOrderStatusEnum, BeerOrderEventEnum>
@@ -116,6 +119,7 @@ public class StateMachineConfig extends
                 .source(ALLOCATION_PENDING)
                 .target(ALLOCATION_EXCEPTION)
                 .event(ALLOCATION_FAILED_EVENT)
+                .action(allocationFailureTransactionRequestAction)
                 // -------------------------------------------------------------
                 .and()
                 .withExternal()

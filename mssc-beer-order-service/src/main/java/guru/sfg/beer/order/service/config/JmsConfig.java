@@ -22,6 +22,8 @@ public class JmsConfig {
     public static final String ORDER_ALLOCATION_QUEUE_NAME = "allocate-order";
     public static final String ORDER_ALLOCATION_RESPONSE_QUEUE_NAME =
             "allocate-order-response";
+    public static final String ORDER_ALLOCATION_FAILURE_TX_REQUEST_QUEUE_NAME =
+            "allocation-failure-tx-request";
 
     @Bean
     public MessageConverter messageConverter(ObjectMapper objectMapper) {

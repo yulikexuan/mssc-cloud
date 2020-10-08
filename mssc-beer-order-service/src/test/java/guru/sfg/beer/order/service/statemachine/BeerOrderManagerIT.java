@@ -12,6 +12,7 @@ import com.github.jenspiegsa.wiremockextension.WireMockSettings;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.core.Options;
+import guru.sfg.beer.order.service.config.JmsConfig;
 import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.domain.BeerOrderLine;
 import guru.sfg.beer.order.service.domain.Customer;
@@ -19,6 +20,7 @@ import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
 import guru.sfg.beer.order.service.repositories.CustomerRepository;
 import guru.sfg.beer.order.service.services.beer.BeerService;
 import guru.sfg.beer.order.service.web.model.BeerDto;
+import guru.sfg.brewery.model.AllocationFailureTransactionRequest;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Sets;
@@ -26,6 +28,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jms.core.JmsTemplate;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -81,6 +84,9 @@ class BeerOrderManagerIT {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    @Autowired
+    private JmsTemplate jmsTemplate;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -233,6 +239,13 @@ class BeerOrderManagerIT {
                         .findById(beerOrderId).get();
                 assertThat(allocatedBeerOrder.getOrderStatus()).isEqualTo(
                         ALLOCATION_EXCEPTION);
+                String destination = JmsConfig
+                        .ORDER_ALLOCATION_FAILURE_TX_REQUEST_QUEUE_NAME;
+                AllocationFailureTransactionRequest txRequest =
+                        (AllocationFailureTransactionRequest) jmsTemplate
+                                .receiveAndConvert(destination);
+                UUID failedBeerOrderId = txRequest.getBeerOrderId();
+                assertThat(failedBeerOrderId).isEqualTo(beerOrderId);
             });
         }
 
