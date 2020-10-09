@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Setter
 @NoArgsConstructor
 @Builder @AllArgsConstructor
-public class AllocateBeerOrderRequest implements Serializable  {
+public class AllocateBeerOrderRequest implements Serializable {
 
     static final long serialVersionUID = 280780960648999105L;
 

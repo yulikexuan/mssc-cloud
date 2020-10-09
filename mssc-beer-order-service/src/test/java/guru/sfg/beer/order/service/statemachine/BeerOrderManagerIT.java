@@ -21,6 +21,7 @@ import guru.sfg.beer.order.service.repositories.CustomerRepository;
 import guru.sfg.beer.order.service.services.beer.BeerService;
 import guru.sfg.beer.order.service.web.model.BeerDto;
 import guru.sfg.brewery.model.AllocationFailureTransactionRequest;
+import guru.sfg.brewery.model.DeallocateBeerOrderRequest;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Sets;
@@ -317,6 +318,7 @@ class BeerOrderManagerIT {
     }
 
     @Test
+    @Disabled
     void test_Given_Allocation_Pending_Beer_Order_Then_Ending_As_Canceled_State()
             throws Exception {
 
@@ -378,6 +380,11 @@ class BeerOrderManagerIT {
             BeerOrder canceledOrder = beerOrderRepository
                     .findById(beerOrderId).get();
             assertThat(canceledOrder.getOrderStatus()).isEqualTo(CANCELLED);
+            DeallocateBeerOrderRequest deallocateBeerOrderRequest =
+                    (DeallocateBeerOrderRequest) jmsTemplate.receiveAndConvert(
+                            JmsConfig.ORDER_DEALLOCATION_QUEUE_NAME);
+            assertThat(deallocateBeerOrderRequest.getBeerOrderDto().getId())
+                    .isEqualTo(beerOrderId);
         });
     }
 

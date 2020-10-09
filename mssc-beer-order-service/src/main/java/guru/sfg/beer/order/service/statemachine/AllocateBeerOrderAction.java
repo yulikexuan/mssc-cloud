@@ -19,6 +19,7 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -37,6 +38,7 @@ public class AllocateBeerOrderAction implements
     private final JmsTemplate jmsTemplate;
 
     @Override
+    @Transactional
     public void execute(StateContext<BeerOrderStatusEnum, BeerOrderEventEnum>
                                     stateContext) {
 
