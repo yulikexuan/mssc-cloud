@@ -134,6 +134,8 @@ public class BeerOrderManager implements IBeerOrderManager {
 
             this.sendBeerOrderEvent(beerOrder, VALIDATION_PASSED_EVENT);
 
+            this.awaitForOrderStatus(beerOrderId, VALIDATED);
+
             this.beerOrderRepository.findById(beerOrderId).ifPresentOrElse(
                     validatedBeerOrder -> {
                         if (!CUSTOMER_REF_NO_ALLOCATION_EVENT.equals(
@@ -178,6 +180,7 @@ public class BeerOrderManager implements IBeerOrderManager {
                     }
 
                     this.sendBeerOrderEvent(allocatedOrder, event);
+                    this.awaitForOrderStatus(allocatedOrder.getId(), expectedStatus);
 
                     if (!event.equals(ALLOCATION_FAILED_EVENT)) {
                         this.awaitForOrderStatus(beerOrderId, expectedStatus);
