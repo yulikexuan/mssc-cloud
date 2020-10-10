@@ -44,6 +44,21 @@ public class BeerAllocationService implements IBeerAllocationService {
         return totalOrdered.longValue() == totalAllocated.longValue();
     }
 
+    @Override
+    public void deallocateBeerOrder(@NonNull BeerOrderDto beerOrderDto) {
+        beerOrderDto.getBeerOrderLines().stream()
+                .map(orderLine -> BeerInventory.builder()
+                        .beerId(orderLine.getBeerId())
+                        .upc(orderLine.getUpc())
+                        .quantityOnHand(orderLine.getQuantityAllocated())
+                        .build())
+                .forEach(inventory -> {
+                    this.beerInventoryRepository.save(inventory);
+                    log.debug(">>>>>>> Deallocated beer order upc - {}",
+                            inventory.getUpc());
+                });
+    }
+
     private boolean isQualifiedForAllocation(
             @NonNull BeerOrderLineDto beerOrderLineDto) {
 

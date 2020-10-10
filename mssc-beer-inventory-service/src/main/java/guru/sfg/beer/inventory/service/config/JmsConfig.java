@@ -16,8 +16,17 @@ import org.springframework.jms.support.converter.MessageType;
 public class JmsConfig {
 
     public static final String NEW_INVENTORY_QUEUE_NAME = "new-inventory";
+
     public static final String ORDER_ALLOCATION_QUEUE_NAME = "allocate-order";
-    public static final String ORDER_ALLOCATION_RESPONSE_QUEUE_NAME = "allocate-order-response";
+
+    public static final String ORDER_ALLOCATION_RESPONSE_QUEUE_NAME =
+            "allocate-order-response";
+
+    public static final String ORDER_DEALLOCATION_QUEUE_NAME =
+            "deallocate-order";
+
+    public static final String ORDER_DEALLOCATION_RESPONSE_QUEUE_NAME =
+            "deallocate-order-response";
 
     @Bean
     public MessageConverter messageConverter(ObjectMapper objectMaper) {

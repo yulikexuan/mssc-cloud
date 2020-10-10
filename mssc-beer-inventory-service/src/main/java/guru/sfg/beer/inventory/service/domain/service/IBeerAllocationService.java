@@ -10,5 +10,6 @@ import guru.sfg.brewery.model.BeerOrderDto;
 public interface IBeerAllocationService {
 
     boolean allocateBeerOrder(BeerOrderDto beerOrderDto);
+    void deallocateBeerOrder(BeerOrderDto beerOrderDto);
 
 }///:~
