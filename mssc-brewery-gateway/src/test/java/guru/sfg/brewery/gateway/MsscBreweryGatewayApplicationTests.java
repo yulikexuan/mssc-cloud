@@ -1,7 +1,7 @@
-//: guru.sfg.brewery.MsscBreweryGatewayApplicationTests.java
+//: guru.sfg.brewery.gateway.MsscBreweryGatewayApplicationTests.java
 
 
-package guru.sfg.brewery;
+package guru.sfg.brewery.gateway;
 
 
 import org.junit.jupiter.api.Disabled;

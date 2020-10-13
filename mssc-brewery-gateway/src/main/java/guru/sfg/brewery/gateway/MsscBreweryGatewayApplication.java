@@ -1,7 +1,7 @@
-//: guru.sfg.brewery.MsscBreweryGatewayApplication.java
+//: guru.sfg.brewery.gateway.MsscBreweryGatewayApplication.java
 
 
-package guru.sfg.brewery;
+package guru.sfg.brewery.gateway;
 
 
 import org.springframework.boot.SpringApplication;
