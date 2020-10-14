@@ -3,3 +3,7 @@ spring:
     name: sfg-brewery-gateway
 server:
   port: 9090
+logging:
+  level:
+    guru.sfg.brewery.gateway: DEBUG
+    reactor.netty.http.client: DEBUG
