@@ -31,7 +31,7 @@ public class BrewingService implements IBrewingService {
     private final IBeerSpecification beerLowInventorySpecification;
 
     @Override
-    @Scheduled(initialDelay = 10000L, fixedDelay = 60000L) // Every 30 Sec.
+    @Scheduled(initialDelay = 10000L, fixedDelay = 60000L) // Every 60 Sec.
     public void checkForLowInventory() {
 
         List<Beer> allBeers = this.beerRepository.findAll();
