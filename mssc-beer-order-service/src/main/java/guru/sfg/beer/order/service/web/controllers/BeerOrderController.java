@@ -29,9 +29,12 @@ public class BeerOrderController {
 
     @GetMapping("orders")
     public BeerOrderPagedList listOrders(
-            @PathVariable("customerId") UUID customerId,
-            @RequestParam(value = "pageNumber", required = false) Integer pageNumber,
-            @RequestParam(value = "pageSize", required = false) Integer pageSize){
+            @PathVariable("customerId")
+                    UUID customerId,
+            @RequestParam(value = "pageNumber", required = false)
+                    Integer pageNumber,
+            @RequestParam(value = "pageSize", required = false)
+                    Integer pageSize) {
 
         if (pageNumber == null || pageNumber < 0) {
             pageNumber = DEFAULT_PAGE_NUMBER;
@@ -41,22 +44,23 @@ public class BeerOrderController {
             pageSize = DEFAULT_PAGE_SIZE;
         }
 
-        return beerOrderService.listOrders(
-                customerId,
+        return beerOrderService.listOrders(customerId,
                 PageRequest.of(pageNumber, pageSize));
     }
 
     @GetMapping("orders/{orderId}")
-    public BeerOrderDto getOrder(@PathVariable("customerId") UUID customerId,
-                                 @PathVariable("orderId") UUID orderId) {
+    public BeerOrderDto getOrder(
+            @PathVariable("customerId") UUID customerId,
+            @PathVariable("orderId") UUID orderId) {
 
         return beerOrderService.getOrderById(customerId, orderId);
     }
 
     @PostMapping("orders")
     @ResponseStatus(HttpStatus.CREATED)
-    public UUID placeOrder(@PathVariable("customerId") UUID customerId,
-                                   @RequestBody BeerOrderDto beerOrderDto) {
+    public UUID placeOrder(
+            @PathVariable("customerId") UUID customerId,
+            @RequestBody BeerOrderDto beerOrderDto) {
 
         return beerOrderService.placeOrder(customerId, beerOrderDto)
                 .orElseThrow(FailedToPlaceBeerOrderException::new);
@@ -64,8 +68,9 @@ public class BeerOrderController {
 
     @PutMapping("/orders/{orderId}/pickup")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void pickupOrder(@PathVariable("customerId") UUID customerId,
-                            @PathVariable("orderId") UUID orderId) {
+    public void pickupOrder(
+            @PathVariable("customerId") UUID customerId,
+            @PathVariable("orderId") UUID orderId) {
 
         beerOrderService.pickupOrder(customerId, orderId);
     }

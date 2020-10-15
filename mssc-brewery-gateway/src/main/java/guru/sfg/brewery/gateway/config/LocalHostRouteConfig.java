@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean;
 
 
 @Slf4j
-// @Configuration
+// @Configuration // Config with application.yml
 public class LocalHostRouteConfig {
 
     static final String[] BEER_SERVICE_PATHS = {

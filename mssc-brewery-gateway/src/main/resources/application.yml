@@ -8,6 +8,10 @@ spring:
           uri: http://localhost:8081
           predicates:
             - Path=/api/v1/beer*,/api/v1/beer/*,/api/v1/upcbeer*,/api/v1/upcbeer/*
+        - id: beer-order-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/v1/customers*,/api/v1/customers/**,
 server:
   port: 9090
 logging:

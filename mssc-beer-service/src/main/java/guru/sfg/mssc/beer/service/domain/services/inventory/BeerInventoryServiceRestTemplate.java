@@ -9,8 +9,6 @@ import guru.sfg.mssc.beer.service.web.controller.NotFoundException;
 import guru.sfg.mssc.beer.service.web.model.inventory.BeerInventoryDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -47,7 +45,7 @@ public class BeerInventoryServiceRestTemplate implements IBeerInventoryService {
     @Override
     public Integer getOnhandInventory(UUID beerId) {
 
-        log.debug("Calling Inventory Service");
+        log.debug(">>>>>>> Calling Inventory Service");
 
         int sum = -1;
 
