@@ -1,6 +1,13 @@
 spring:
   application:
     name: sfg-brewery-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: beer-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/v1/beer*,/api/v1/beer/*,/api/v1/upcbeer*,/api/v1/upcbeer/*
 server:
   port: 9090
 logging:
