@@ -14,11 +14,11 @@
 	</parent>
 
 	<groupId>com.github.sfg-beer-works</groupId>
-	<artifactId>mssc-brewery-gateway</artifactId>
+	<artifactId>mssc-brewery-eureka</artifactId>
 	<version>2020.04.01</version>
-	<name>mssc-brewery-gateway</name>
+	<name>mssc-brewery-eureka</name>
 
-	<description>Brewery Gateway</description>
+	<description>Brewery Eureka Server</description>
 
 	<properties>
 		<java.version>14</java.version>
@@ -53,7 +53,7 @@
 
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-gateway</artifactId>
+			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
 		</dependency>
 
 		<dependency>
