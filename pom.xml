@@ -19,6 +19,7 @@
         <module>mssc-beer-order-service</module>
         <module>mssc-brewery-gateway</module>
         <module>mssc-brewery-eureka</module>
+        <module>mssc-inventory-failover</module>
     </modules>
 
 </project>

@@ -17,6 +17,10 @@ spring:
           uri: lb://beer-inventory-service
           predicates:
             - Path=/api/v1/beer/*/inventory
+        - id: beer-inventory-failover
+          uri: lb://beer-inventory-failover
+          predicates:
+            - Path=/api/v1/inventory-failover
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG

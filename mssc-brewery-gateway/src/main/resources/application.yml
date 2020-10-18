@@ -18,6 +18,10 @@ spring:
           uri: http://localhost:8083
           predicates:
             - Path=/api/v1/beer/*/inventory
+        - id: beer-inventory-failover
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/v1/inventory-failover
 eureka:
   client:
     register-with-eureka: false
