@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.UUID;
 
 
-@FeignClient(name = "beer-inventory-service")
+@FeignClient(name = "beer-inventory-service",
+        fallback = BeerInventoryFailoverFeignClientService.class)
 public interface IBeerInventoryFeignClient {
 
     String INVENTORY_PATH = BeerInventoryServiceRestTemplate.INVENTORY_PATH;

@@ -1,5 +1,15 @@
 # MSSC Beer Service
 
+## Add in Hystrix CB to Feign Client of Inventory
+
+1. Config application-local-discovery.yml
+
+   ``` 
+    feign:
+      hystrix:
+        enabled: true
+   ```
+
 ## Calling API
 
 ### Get Beer By Id with Inventory Data

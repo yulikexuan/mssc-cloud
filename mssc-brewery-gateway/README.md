@@ -1,6 +1,6 @@
 # MSSC Brewery Gateway
 
-## Config Spring Cloud Gateway with Discovery Service
+### Config Spring Cloud Gateway with Discovery Service
 
 1. Add dependency
 
@@ -36,7 +36,7 @@
         org.springframework.cloud.gateway: DEBUG
    ```
 
-## Add in Resilience4J Circuit Breaker
+### Add in Resilience4J Circuit Breaker
 
 1. Add denpendency
 
@@ -78,7 +78,7 @@
       predicates:
         - Path=/api/v1/beer/*/inventory
    ```
-## Resources
+### Resources
 - [Spring Cloud](https://spring.io/projects/spring-cloud)
 - [Spring Cloud Gateway](https://spring.io/projects/spring-cloud-gateway#learn)
 - [Writing Custom Spring Cloud Gateway Filters](https://www.baeldung.com/spring-cloud-custom-gateway-filters)
