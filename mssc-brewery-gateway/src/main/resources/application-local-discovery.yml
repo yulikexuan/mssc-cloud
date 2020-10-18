@@ -1,0 +1,22 @@
+spring:
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+    gateway:
+      routes:
+        - id: beer-service
+          uri: lb://beer-service
+          predicates:
+            - Path=/api/v1/beer*,/api/v1/beer/*,/api/v1/upcbeer*,/api/v1/upcbeer/*
+        - id: beer-order-service
+          uri: lb://beer-order-service
+          predicates:
+            - Path=/api/v1/customers*,/api/v1/customers/**
+        - id: beer-inventory-service
+          uri: lb://beer-inventory-service
+          predicates:
+            - Path=/api/v1/beer/*/inventory
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

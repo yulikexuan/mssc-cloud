@@ -1,3 +1,5 @@
+server:
+  port: 9090
 spring:
   application:
     name: sfg-brewery-gateway
@@ -16,8 +18,9 @@ spring:
           uri: http://localhost:8083
           predicates:
             - Path=/api/v1/beer/*/inventory
-server:
-  port: 9090
+eureka:
+  client:
+    register-with-eureka: false
 logging:
   level:
     guru.sfg.brewery.gateway: DEBUG
