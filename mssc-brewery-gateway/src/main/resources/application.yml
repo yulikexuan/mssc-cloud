@@ -16,12 +16,17 @@ spring:
             - Path=/api/v1/customers*,/api/v1/customers/**
         - id: beer-inventory-service
           uri: http://localhost:8083
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: inventoryCircuitBreaker
+                fallbackUri: forward:/api/v1/inventory-failover
           predicates:
             - Path=/api/v1/beer/*/inventory
         - id: beer-inventory-failover
           uri: http://localhost:8084
           predicates:
-            - Path=/api/v1/inventory-failover
+            - Path=/api/v1/inventory-failover*,/api/v1/inventory-failover/**
 eureka:
   client:
     register-with-eureka: false
