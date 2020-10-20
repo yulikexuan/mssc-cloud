@@ -7,10 +7,11 @@ spring:
     config:
       server:
         git:
+          # For Git Repo
           uri: https://github.com/yulikexuan/mssc-config-repo
+          searchPaths: '{application}'
           clone-on-start: true
-
-logging: 
+logging:
   level: 
     org.springframework.cloud: debug
     org.springframework.web: debug
