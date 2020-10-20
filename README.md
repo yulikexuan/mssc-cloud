@@ -1,8 +1,34 @@
 # MSSC Cloud for Beer
 The Spring Cloud Lab
 
-## The MSSC Beer Service
+## The MSSC Brewery Services
 
+### Microservice List
+
+- beer-service
+  - port: 8081
+
+- beer-inventory-service
+  - port: 8083
+
+- beer-order-service
+  - port: 8082
+
+- beer-inventory-failover
+  - port: 8084
+
+### Spring Cloud Service List
+
+- mssc-brewery-gateway
+  - port: 9090
+
+- mssc-brewery-eureka
+  - port: 8761
+
+- mssc-brewery-config
+  - port: 8888
+  
+  
 ### The API
 
 #### Get Beer By Id with Inventory Data

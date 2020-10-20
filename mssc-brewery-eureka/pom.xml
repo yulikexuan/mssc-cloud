@@ -15,7 +15,7 @@
 
 	<groupId>com.github.sfg-beer-works</groupId>
 	<artifactId>mssc-brewery-eureka</artifactId>
-	<version>2020.04.01</version>
+	<version>2020.04.02</version>
 	<name>mssc-brewery-eureka</name>
 
 	<description>Brewery Eureka Server</description>
