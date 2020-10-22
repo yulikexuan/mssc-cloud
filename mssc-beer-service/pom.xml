@@ -9,7 +9,7 @@
     <parent>
         <groupId>yulikexuan.spring.cloud</groupId>
         <artifactId>spring-cloud-parent</artifactId>
-        <version>2020.04.02</version>
+        <version>2020.04.03</version>
         <relativePath />
     </parent>
 

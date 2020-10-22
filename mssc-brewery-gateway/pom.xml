@@ -15,7 +15,7 @@
 
 	<groupId>com.github.sfg-beer-works</groupId>
 	<artifactId>mssc-brewery-gateway</artifactId>
-	<version>2020.04.02</version>
+	<version>2020.04.03</version>
 	<name>mssc-brewery-gateway</name>
 
 	<description>Brewery Gateway</description>

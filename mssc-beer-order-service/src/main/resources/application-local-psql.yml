@@ -1,4 +1,7 @@
 spring:
+  cloud:
+    discovery:
+      enabled: false
   jpa:
     database: postgresql
     hibernate:

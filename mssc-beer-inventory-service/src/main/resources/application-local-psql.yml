@@ -1,4 +1,8 @@
 spring:
+  # Disable Spring Cloud Discovery by Default
+  cloud:
+    discovery:
+      enabled: false
   jpa:
     database: postgresql
     hibernate:

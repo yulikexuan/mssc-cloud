@@ -15,7 +15,7 @@
 
 	<groupId>guru.sfg.brewery</groupId>
 	<artifactId>mssc-inventory-failover</artifactId>
-	<version>2020.04.02</version>
+	<version>2020.04.03</version>
 	<name>mssc-inventory-failover</name>
 	<description>Inventory Failover Service for Cloud Circuit Breaker</description>
 

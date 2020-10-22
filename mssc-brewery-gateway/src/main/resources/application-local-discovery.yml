@@ -26,6 +26,9 @@ spring:
           uri: lb://beer-inventory-failover
           predicates:
             - Path=/api/v1/inventory-failover*,/api/v1/inventory-failover/**
+eureka:
+  client:
+    register-with-eureka: false
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
