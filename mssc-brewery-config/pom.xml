@@ -15,7 +15,7 @@
 
 	<groupId>com.github.sfg-beer-works</groupId>
 	<artifactId>mssc-brewery-config</artifactId>
-	<version>2020.04.04</version>
+	<version>2020.04.05</version>
 	<name>mssc-brewery-config</name>
 
 	<description>Brewery Config Server</description>
@@ -71,6 +71,12 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>net.logstash.logback</groupId>
+			<artifactId>logstash-logback-encoder</artifactId>
+			<version>6.4</version>
 		</dependency>
 
 		<dependency>
