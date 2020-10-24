@@ -5,6 +5,8 @@ spring:
       enabled: false
   jpa:
     database: postgresql
+    repositories:
+      bootstrap-mode: default
     hibernate:
       ddl-auto: update
     properties:

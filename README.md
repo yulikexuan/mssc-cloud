@@ -79,18 +79,24 @@ curl -s -w '\n\nTotal: %{time_total} Seconds\n' http://localhost:8081/api/v1/upc
     - ` postgres=# \q `
 
 ### ActiveMQ-Artemis in Docker Container
-
+- user: artemis
+- password: simetraehcapa
 - For Windows 10: 
   - Start ActiveMQ-Artemis
-    - ``` winpty docker run -it --rm -p 8161:8161 -p 61616:61616 vromero/activemq-artemis ```
+    - ``` winpty docker run -it --rm -d -p 8161:8161 -p 61616:61616 vromero/activemq-artemis ```
   - Stop ActiveMQ-Artemis
     - ``` docker stop <container name> ```
 
 - For Linux: 
     - Start ActiveMQ-Artemis
-      - ``` docker run -it --rm -p 8161:8161 -p 61616:61616 vromero/activemq-artemis ```
+      - ``` docker run -it --rm -d -p 8161:8161 -p 61616:61616 vromero/activemq-artemis ```
   - Stop ActiveMQ-Artemis
     - ``` docker stop <container name> ```
+
+### Zipkin Server in Docker Container
+- For Windows 10: 
+  - ``` winpty docker run -d -p 9411:9411 openzipkin/zipkin ```
+  
 
 ### Solution for Tricky Issues
 
