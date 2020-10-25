@@ -5,3 +5,5 @@ spring:
     config:
       discovery:
         service-id: mssc-brewery-config
+encrypt:
+  key: supersecretkey
