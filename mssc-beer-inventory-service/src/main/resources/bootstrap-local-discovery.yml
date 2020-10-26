@@ -10,3 +10,7 @@ spring:
       password: "{cipher}f565b94774ad31bbf6c817ea5b1db1595582a00745c40b9f687bafd281a62933"
 encrypt:
   key: supersecretkey
+eureka:
+  client:
+    service-url:
+      defaultZone: "http://yulikexuan:password@localhost:8761/eureka"
