@@ -11,6 +11,10 @@ spring:
           uri: https://github.com/yulikexuan/mssc-config-repo
           searchPaths: '{application}'
           clone-on-start: true
+  security:
+    user:
+      name: yulikexuan
+      password: password
 logging:
   level: 
     org.springframework.cloud: debug

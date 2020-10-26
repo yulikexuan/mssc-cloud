@@ -19,13 +19,4 @@
     <name>mssc-beer-inventory-service</name>
     <description>MSSC Beer Inventory Service</description>
 
-    <dependencies>
-
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-rsa</artifactId>
-        </dependency>
-
-    </dependencies>
-
 </project>
