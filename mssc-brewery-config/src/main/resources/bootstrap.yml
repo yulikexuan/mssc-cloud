@@ -7,3 +7,7 @@ spring:
 # Should be Env. Property
 encrypt:
   key: supersecretkey
+eureka:
+  client:
+    service-url:
+      defaultZone: "http://yulikexuan:password@localhost:8761/eureka"

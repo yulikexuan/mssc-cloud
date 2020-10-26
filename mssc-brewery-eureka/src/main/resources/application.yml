@@ -1,5 +1,10 @@
 server:
   port: 8761
+spring:
+  security:
+    user:
+      name: yulikexuan
+      password: "{cipher}f565b94774ad31bbf6c817ea5b1db1595582a00745c40b9f687bafd281a62933"
 eureka: 
   client: 
     register-with-eureka: false

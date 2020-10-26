@@ -72,7 +72,7 @@
         encrypt:
           key: supersecretkey
         ```
-        to ``` application-local-discovery.yml ``` and make sure the key is same as the one of Config Server
+        to ``` bootstrap-local-discovery.yml ``` and make sure the key is same as the one of Config Server
       - Add 
         ``` 
         <dependency>
@@ -94,7 +94,38 @@
               user: artemis
               password: "{cipher}cb06ee1d8b39b83855b818d671094aa53f2bcf667f1ece939a06170235eb350e"
           ```
-        
+5.  Secure Spring Cloud Config Server with Basic Auth
+
+    - Add maven dependency
+    
+      ``` 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+      ```
+      
+    - Add ```username``` & ```password``` to ``` application.yml ```
+    
+      ``` 
+      spring: 
+        security:
+          user:
+            name: yulikexuan
+            password: "{cipher}f565b94774ad31bbf6c817ea5b1db1595582a00745c40b9f687bafd281a62933"
+      ```
+      
+    - Config Clients of Config Server
+      - Add ```username``` & ```password``` to ``` bootstrap-local-discovery.yml ```
+      
+      ``` 
+        spring:
+          cloud:
+            config:
+              fail-fast: true
+              username: yulikexuan
+              password: "{cipher}f565b94774ad31bbf6c817ea5b1db1595582a00745c40b9f687bafd281a62933"
+      ```
 
 ### Resources
 - [Spring Cloud Config – Encrypt / Decrypt Configuration Properties](https://asbnotebook.com/2019/08/06/spring-cloud-config-encrypt-decrypt-configuration-properties/)
