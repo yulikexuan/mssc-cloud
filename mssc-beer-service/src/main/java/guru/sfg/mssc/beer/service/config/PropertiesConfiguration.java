@@ -19,7 +19,7 @@ import javax.validation.constraints.NotBlank;
 public class PropertiesConfiguration {
 
     @Bean
-    @ConfigurationProperties(prefix = "sfg.brewery", ignoreUnknownFields = false)
+    @ConfigurationProperties(prefix = "sfg.brewery", ignoreUnknownFields = true)
     public SfgBreweryProperties sfgBrewery() {
         return new SfgBreweryProperties();
     }
@@ -37,6 +37,12 @@ public class PropertiesConfiguration {
         @Min(1025)
         @Max(8080)
         private int port;
+
+        @NotBlank
+        private String beerInventoryUserName;
+
+        @NotBlank
+        private String beerInventoryPassword;
     }
 
 }///:~

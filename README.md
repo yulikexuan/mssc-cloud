@@ -97,6 +97,163 @@ curl -s -w '\n\nTotal: %{time_total} Seconds\n' http://localhost:8081/api/v1/upc
 - For Windows 10: 
   - ``` winpty docker run -d -p 9411:9411 openzipkin/zipkin ```
   
+### How to Secure Inventory Service with BasicAuth
+
+1.  Add ```username``` and ```password``` to ```mssc-config-repo```
+
+    ``` 
+    spring:
+      security:
+        user:
+          name: inventory
+          password: "{cipher}f565b94774ad31bbf6c817ea5b1db1595582a00745c40b9f687bafd281a62933"
+    ```
+
+2.  Add maven dependency
+
+    ``` 
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    ```
+
+3.  Create configuration class for BasicAuth
+
+    ``` 
+    @Slf4j
+    @Configuration
+    public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.csrf().disable()
+                    .authorizeRequests()
+                    .anyRequest()
+                    .authenticated()
+                    .and()
+                    .httpBasic();
+        }
+    
+    }///:~
+    ```
+
+4.  Config client service of Inventory Service: Beer Service
+
+    - Add credential of Inventory Service to ``` application-local-secure.yml ``` of ``` mssc-config-repo ```
+    
+      ``` 
+        sfg:
+          brewery:
+            beer-inventory-service-host: http://localhost:8083
+            beer-inventory-user-name: inventory
+            beer-inventory-password: "{cipher}f565b94774ad31bbf6c817ea5b1db1595582a00745c40b9f687bafd281a62933"
+      ```
+      
+    - Add credential to ``` PropertiesConfiguration ```
+    
+      ``` 
+        @Configuration
+        public class PropertiesConfiguration {
+        
+            @Bean
+            @ConfigurationProperties(prefix = "sfg.brewery", ignoreUnknownFields = true)
+            public SfgBreweryProperties sfgBrewery() {
+                return new SfgBreweryProperties();
+            }
+        
+            @Getter
+            @Setter
+            public static class SfgBreweryProperties {
+        
+                @NotBlank
+                private String beerInventoryServiceHost;
+        
+                @NotBlank
+                private String hostName;
+        
+                @Min(1025)
+                @Max(8080)
+                private int port;
+        
+                @NotBlank
+                private String beerInventoryUserName;
+        
+                @NotBlank
+                private String beerInventoryPassword;
+            }
+        
+        }///:~
+      ```
+      
+    - Config ``` RestTemplate ``` to use ``` BasicAuth ``` Credential
+    
+      ``` 
+      public class BeerInventoryServiceRestTemplate implements IBeerInventoryService {
+      
+          public static final String INVENTORY_PATH = "/api/v1/beer/{beerId}/inventory";
+      
+          private final RestTemplate restTemplate;
+          private final String inventoryUserName;
+          private final String inventoryPassword;
+          private final String beerInventoryServiceHost;
+      
+      
+          @Autowired
+          public BeerInventoryServiceRestTemplate(
+                  PropertiesConfiguration.SfgBreweryProperties sfgBreweryProperties,
+                  RestTemplateBuilder restTemplateBuilder) {
+      
+              this.beerInventoryServiceHost =
+                      sfgBreweryProperties.getBeerInventoryServiceHost();
+              this.inventoryUserName = sfgBreweryProperties.getBeerInventoryUserName();
+              this.inventoryPassword = sfgBreweryProperties.getBeerInventoryPassword();
+      
+              this.restTemplate = restTemplateBuilder
+                      .basicAuthentication(inventoryUserName, inventoryPassword)
+                      .build();
+          }
+          ... ...
+      }
+      ``` 
+      
+    - Add configuration class for ``` FeignClient ```
+    
+      ``` 
+        @Slf4j
+        @Configuration
+        @AllArgsConstructor
+        public class FeignClientConfig {
+        
+            private final PropertiesConfiguration.SfgBreweryProperties sfgBreweryProperties;
+        
+            @Bean
+            public BasicAuthRequestInterceptor basicAuthRequestInterceptor() {
+                return new BasicAuthRequestInterceptor(
+                        sfgBreweryProperties.getBeerInventoryUserName(),
+                        sfgBreweryProperties.getBeerInventoryPassword());
+            }
+        
+        }///:~
+      ```
+      
+    - Apply ``` FeignClientConfig ``` to ``` IBeerInventoryFeignClient ```
+    
+      ``` 
+        @FeignClient(name = "beer-inventory-service",
+                fallback = BeerInventoryFailoverFeignClientService.class,
+                configuration = FeignClientConfig.class)
+        public interface IBeerInventoryFeignClient {
+        
+            String INVENTORY_PATH = BeerInventoryServiceRestTemplate.INVENTORY_PATH;
+        
+            @GetMapping(value = INVENTORY_PATH)
+            ResponseEntity<List<BeerInventoryDto>> getOnHandInventory(
+                    @PathVariable UUID beerId);
+        
+        }///:~
+      ```
+
 
 ### Solution for Tricky Issues
 

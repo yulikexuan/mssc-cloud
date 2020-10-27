@@ -3,6 +3,10 @@ server:
 spring:
   application:
     name: beer-inventory-service
+  security:
+    user:
+      name: inventory
+      password: "{cipher}f565b94774ad31bbf6c817ea5b1db1595582a00745c40b9f687bafd281a62933"
   jpa:
     show-sql: false
     properties:

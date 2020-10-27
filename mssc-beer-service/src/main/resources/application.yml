@@ -39,6 +39,8 @@ spring:
 sfg:
   brewery:
     beer-inventory-service-host: http://localhost:8083
+    beer-inventory-user-name: inventory
+    beer-inventory-password: "{cipher}f565b94774ad31bbf6c817ea5b1db1595582a00745c40b9f687bafd281a62933"
 #logging:
 logging:
   level:

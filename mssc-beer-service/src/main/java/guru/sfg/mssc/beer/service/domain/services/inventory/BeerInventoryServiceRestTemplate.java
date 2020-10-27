@@ -31,17 +31,24 @@ public class BeerInventoryServiceRestTemplate implements IBeerInventoryService {
     public static final String INVENTORY_PATH = "/api/v1/beer/{beerId}/inventory";
 
     private final RestTemplate restTemplate;
+    private final String inventoryUserName;
+    private final String inventoryPassword;
+    private final String beerInventoryServiceHost;
 
-    private String beerInventoryServiceHost;
 
     @Autowired
     public BeerInventoryServiceRestTemplate(
             PropertiesConfiguration.SfgBreweryProperties sfgBreweryProperties,
             RestTemplateBuilder restTemplateBuilder) {
 
-        this.restTemplate = restTemplateBuilder.build();
         this.beerInventoryServiceHost =
                 sfgBreweryProperties.getBeerInventoryServiceHost();
+        this.inventoryUserName = sfgBreweryProperties.getBeerInventoryUserName();
+        this.inventoryPassword = sfgBreweryProperties.getBeerInventoryPassword();
+
+        this.restTemplate = restTemplateBuilder
+                .basicAuthentication(inventoryUserName, inventoryPassword)
+                .build();
     }
 
     @Override
@@ -72,8 +79,8 @@ public class BeerInventoryServiceRestTemplate implements IBeerInventoryService {
         return sum;
     }
 
-    public void setBeerInventoryServiceHost(String beerInventoryServiceHost) {
-        this.beerInventoryServiceHost = beerInventoryServiceHost;
-    }
+//    public void setBeerInventoryServiceHost(String beerInventoryServiceHost) {
+//        this.beerInventoryServiceHost = beerInventoryServiceHost;
+//    }
 
 }///:~
