@@ -259,6 +259,11 @@ curl -s -w '\n\nTotal: %{time_total} Seconds\n' http://localhost:8081/api/v1/upc
 
 #### Hibernate could not initialize proxy – no Session
 
+### Run in Docker
+
+- [Building Docker Images with Maven](README_Docker.md)
+
+
 
 ### Resources
 * [psql cheatsheet](https://www.postgresqltutorial.com/postgresql-cheat-sheet/)
