@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>yulikexuan.spring.cloud</groupId>
 		<artifactId>spring-cloud-bom</artifactId>
-		<version>2020.04.07</version>
+		<version>2020.04-SNAPSHOT</version>
 		<relativePath />
 	</parent>
 

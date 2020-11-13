@@ -59,6 +59,7 @@
 3.  Add ``` Dockerfile ``` 
 
     - Add new ``` Dockerfile ``` to ``` src/main/docker ``` folder
+    - This Dockerfile uses [use multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/)
     
       ``` 
         FROM openjdk:16-slim as builder
@@ -85,3 +86,13 @@
     - ``` $ mvn clean package docker:build ```
     - ``` $ docker images -a ```
     - ``` $ docker history sfgbeerworks/mssc-beer-inventory-service ```
+
+
+### Resources
+
+- [Docker Image: openjdk:16-slim](https://hub.docker.com/layers/openjdk/library/openjdk/16-slim/images/sha256-ac208c5060f1866d76c415009f81ed5c70e68ebef5f6d9f8e355c3365a192667?context=explore)
+- [Why You Should be Using Spring Boot Docker Layers](https://springframework.guru/why-you-should-be-using-spring-boot-docker-layers/)
+- [Docker Cheat Sheet for Spring Developers](https://springframework.guru/docker-cheat-sheet-for-spring-devlopers/)
+- [fabric8io/docker-maven-plugin](https://github.com/fabric8io/docker-maven-plugin)
+- [fabric8io/docker-maven-plugin Doc](http://dmp.fabric8.io/)
+- [Use multi-stage builds](https://docs.docker.com/develop/develop-images/multistage-build/)
