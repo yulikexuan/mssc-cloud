@@ -11,6 +11,7 @@ FROM openjdk:16-slim as builder
 # The WORKDIR instruction can be used multiple times in a Dockerfile
 # If a relative path is provided, it will be relative to the path of the previous
 WORKDIR application
+#
 ADD maven/${project.build.finalName}.jar ${project.build.finalName}.jar
 RUN java -Djarmode=layertools -jar ${project.build.finalName}.jar extract
 
@@ -18,7 +19,7 @@ FROM openjdk:16-slim
 LABEL PROJECT_NAME=${project.artifactId} \
       PROJECT=${project.id}
 
-EXPOSE 8082
+EXPOSE 8084
 
 WORKDIR application
 COPY --from=builder application/dependencies/ ./

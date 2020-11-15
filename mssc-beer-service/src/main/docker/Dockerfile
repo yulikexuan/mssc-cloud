@@ -18,7 +18,7 @@ FROM openjdk:16-slim
 LABEL PROJECT_NAME=${project.artifactId} \
       PROJECT=${project.id}
 
-EXPOSE 8083
+EXPOSE 8081
 
 WORKDIR application
 COPY --from=builder application/dependencies/ ./
