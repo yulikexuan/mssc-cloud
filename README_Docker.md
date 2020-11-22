@@ -85,7 +85,15 @@
 
     - ``` $ mvn clean package docker:build ```
     - ``` $ docker images -a ```
-    - ``` $ docker history sfgbeerworks/mssc-beer-inventory-service ```
+    - ``` $ docker history cloudlab/mssc-beer-inventory-service ```
+
+5.  Push Images to Dockerhub
+
+    - ``` mvn -Ddocker.username=jolokia -Ddocker.password=s!cr!t docker:push ```
+
+6.  Doing Package, Build and Push all together
+
+    - ``` mvn -Ddocker.username=jolokia -Ddocker.password=s!cr!t clean package docker:build docker:push ```
 
 
 ### Resources
