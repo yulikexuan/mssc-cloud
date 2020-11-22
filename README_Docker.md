@@ -96,6 +96,35 @@
     - ``` mvn -Ddocker.username=jolokia -Ddocker.password=s!cr!t clean package docker:build docker:push ```
 
 
+### Using ``` docker-compose ```
+
+1.  Bring services up
+
+    ``` docker-compose -f compose.yml up -d ```
+
+2.  Bring services down
+
+    ``` docker-compose down [options] ```
+    ``` docker-compose -f compose.yml down -v --remove-orphans ```
+    
+      - Stops containers and removes containers, networks, volumes, and images
+        created by `up`
+      - Options
+          - ``` --rmi type ```
+            - Remove images
+              - Type must be one of:
+                  - 'all': Remove all images used by any service.
+                  - 'local': Remove only images that don't have a custom tag 
+                             set by the `image` field
+          - ``` -v, --volumes ```
+            - Remove named volumes declared in the ``` volumes ``` section of 
+              the Compose file and anonymous volumes attached to containers 
+          - ``` --remove-orphans ```
+            - Remove containers for services not defined in the Compose file
+          - ``` -t, --timeout TIMEOUT ``` 
+            - Specify a shutdown timeout in seconds.(default: 10)
+
+
 ### Resources
 
 - [Docker Image: openjdk:16-slim](https://hub.docker.com/layers/openjdk/library/openjdk/16-slim/images/sha256-ac208c5060f1866d76c415009f81ed5c70e68ebef5f6d9f8e355c3365a192667?context=explore)
