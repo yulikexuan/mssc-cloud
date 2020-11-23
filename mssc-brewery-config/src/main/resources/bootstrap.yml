@@ -10,4 +10,7 @@ encrypt:
 eureka:
   client:
     service-url:
+      # Used by eureka service from docker-compose.yml
+      # defaultZone: "http://yulikexuan:password@eureka:8761/eureka/"
+      # Used by eureka service from localhost
       defaultZone: "http://yulikexuan:password@localhost:8761/eureka"

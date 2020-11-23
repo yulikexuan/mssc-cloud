@@ -124,6 +124,20 @@
           - ``` -t, --timeout TIMEOUT ``` 
             - Specify a shutdown timeout in seconds.(default: 10)
 
+3.  Logs
+
+    ``` docker-compose -f compose.yml logs -f --tail="all" config ```
+
+    ``` 
+        Usage: logs [options] [SERVICE...]
+        
+        Options:
+            --no-color          Produce monochrome output.
+            -f, --follow        Follow log output.
+            -t, --timestamps    Show timestamps.
+            --tail="all"        Number of lines to show from the end of the logs
+                                for each container.
+    ```
 
 ### Resources
 

@@ -1,0 +1,25 @@
+version: "3.8"
+services:
+  jms:
+    image: vromero/activemq-artemis
+    ports:
+      - 8161:8161
+      - 61616:61616
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - 9411:9411
+  eureka:
+    image: yulcloud/mssc-brewery-eureka
+    ports:
+      - 8761:8761
+  config:
+    image: yulcloud/mssc-brewery-config
+    ports:
+      - 8888:8888
+    depends_on:
+      - eureka
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      # EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://yulikexuan:password@eureka:8761/eureka/
+      # - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
