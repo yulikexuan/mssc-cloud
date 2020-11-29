@@ -60,3 +60,19 @@ services:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_ARTEMIS_HOST: jms
       SFG_BREWERY_BEER-INVENTORY-SERVICE-HOST: http://inventory-service:8083
+  order-service:
+    image: yulcloud/mssc-beer-order-service
+    ports:
+      - 8082:8082
+    depends_on:
+      - eureka
+      - config
+      - jms
+      - inventory-service
+      - inventory-failover
+      - beer-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_ARTEMIS_HOST: jms
+      SFG_BREWERY_BEER-INVENTORY-SERVICE-HOST: http://inventory-service:8083
+      SFG_BREWERY_BEER-SERVICE-HOST: http://beer-service:8081
