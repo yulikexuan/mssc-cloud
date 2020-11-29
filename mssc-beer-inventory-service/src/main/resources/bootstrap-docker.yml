@@ -1,0 +1,18 @@
+spring:
+  cloud:
+    discovery:
+      enabled: true
+    config:
+      discovery:
+        # Use DNS defined by docker-compose
+        service-id: config
+      # Needs to wait for config server being ready
+      fail-fast: false
+      username: yulikexuan
+      password: "{cipher}f565b94774ad31bbf6c817ea5b1db1595582a00745c40b9f687bafd281a62933"
+encrypt:
+  key: supersecretkey
+eureka:
+  client:
+    service-url:
+      defaultZone: "http://yulikexuan:password@eureka:8761/eureka/"

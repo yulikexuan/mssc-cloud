@@ -20,6 +20,18 @@ services:
     depends_on:
       - eureka
     environment:
-      - SPRING_PROFILES_ACTIVE=docker
+      SPRING_PROFILES_ACTIVE: docker
       # EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://yulikexuan:password@eureka:8761/eureka/
       # - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+  inventory-service:
+    image: yulcloud/mssc-beer-inventory-service
+    ports:
+      - 8083:8083
+    depends_on:
+      - eureka
+      - config
+      - jms
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING-ARTEMIS-HOST: jms
+      # SPRING-DATASOURCE-URL: jdbc:postgresql://host.docker.internal:5432/beer_inventory_service?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
