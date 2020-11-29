@@ -21,8 +21,8 @@ services:
       - eureka
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
       # EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://yulikexuan:password@eureka:8761/eureka/
-      # - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
   inventory-service:
     image: yulcloud/mssc-beer-inventory-service
     ports:
@@ -34,6 +34,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_ARTEMIS_HOST: jms
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
       # SPRING-DATASOURCE-URL: jdbc:postgresql://host.docker.internal:5432/beer_inventory_service?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
   inventory-failover:
     image: yulcloud/mssc-inventory-failover
@@ -46,6 +47,7 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_ARTEMIS_HOST: jms
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
   beer-service:
     image: yulcloud/mssc-beer-service
     ports:
@@ -60,6 +62,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_ARTEMIS_HOST: jms
       SFG_BREWERY_BEER-INVENTORY-SERVICE-HOST: http://inventory-service:8083
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
   order-service:
     image: yulcloud/mssc-beer-order-service
     ports:
@@ -76,3 +79,19 @@ services:
       SPRING_ARTEMIS_HOST: jms
       SFG_BREWERY_BEER-INVENTORY-SERVICE-HOST: http://inventory-service:8083
       SFG_BREWERY_BEER-SERVICE-HOST: http://beer-service:8081
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
+  # gateway does not use config server
+  gateway:
+    image: yulcloud/mssc-brewery-gateway
+    ports:
+      - 9090:9090
+    depends_on:
+      - eureka
+      - config
+      - inventory-service
+      - beer-service
+      - order-service
+      - inventory-failover
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'

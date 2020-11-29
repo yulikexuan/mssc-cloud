@@ -1,3 +1,8 @@
+### Create Images
+
+  -  ``` mvn --projects mssc-beer-inventory-service,mssc-beer-order-service,mssc-beer-service,mssc-brewery-config,mssc-brewery-gateway,mssc-inventory-failover,mssc-brewery-eureka clean package docker:build ```
+
+
 ### Do a Clean Restart of a Docker Instance
 
 1.  Stop the container(s)
