@@ -36,6 +36,7 @@ services:
       SPRING_ARTEMIS_HOST: jms
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
       # SPRING-DATASOURCE-URL: jdbc:postgresql://host.docker.internal:5432/beer_inventory_service?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    restart: on-failure
   inventory-failover:
     image: yulcloud/mssc-inventory-failover
     ports:
@@ -48,6 +49,7 @@ services:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_ARTEMIS_HOST: jms
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
+    restart: on-failure
   beer-service:
     image: yulcloud/mssc-beer-service
     ports:
@@ -63,6 +65,7 @@ services:
       SPRING_ARTEMIS_HOST: jms
       SFG_BREWERY_BEER-INVENTORY-SERVICE-HOST: http://inventory-service:8083
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
+    restart: on-failure
   order-service:
     image: yulcloud/mssc-beer-order-service
     ports:
@@ -80,6 +83,7 @@ services:
       SFG_BREWERY_BEER-INVENTORY-SERVICE-HOST: http://inventory-service:8083
       SFG_BREWERY_BEER-SERVICE-HOST: http://beer-service:8081
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
+    restart: on-failure
   # gateway does not use config server
   gateway:
     image: yulcloud/mssc-brewery-gateway
@@ -95,3 +99,4 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
+    restart: on-failure
