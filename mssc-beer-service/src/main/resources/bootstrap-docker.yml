@@ -4,6 +4,10 @@ spring:
       enabled: true
     config:
       discovery:
+        # What this means is, discovery lookup is enabled and the app to look
+        # up is “config-server”
+        # This is the spring.application.name of the config server that is
+        # registered with Eureka
         service-id: mssc-brewery-config
       fail-fast: false
       username: yulikexuan
