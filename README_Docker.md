@@ -163,6 +163,11 @@
                                 for each container.
     ```
 
+### Install Elasticsearch with Dockeredit
+
+    ``` docker pull docker.elastic.co/elasticsearch/elasticsearch:7.10.0 ``` 
+    
+    
 ### Resources
 
 - [Docker Image: openjdk:16-slim](https://hub.docker.com/layers/openjdk/library/openjdk/16-slim/images/sha256-ac208c5060f1866d76c415009f81ed5c70e68ebef5f6d9f8e355c3365a192667?context=explore)
