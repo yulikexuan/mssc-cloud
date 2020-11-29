@@ -46,3 +46,17 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: docker
       SPRING_ARTEMIS_HOST: jms
+  beer-service:
+    image: yulcloud/mssc-beer-service
+    ports:
+      - 8081:8081
+    depends_on:
+      - eureka
+      - config
+      - jms
+      - inventory-service
+      - inventory-failover
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_ARTEMIS_HOST: jms
+      SFG_BREWERY_BEER-INVENTORY-SERVICE-HOST: http://inventory-service:8083
