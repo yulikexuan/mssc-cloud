@@ -1,3 +1,15 @@
-docker-compose down -v --remove-orphans 
+echo ""
+echo "------- Shut down all running docker instances -------"
+echo ""
+echo "1. Go to C:/TecsysDev/javaguru/projects/cloudspace/cloudlab2020/mssc-cloud/mssc-beer-service/src/main/docker/local"
+echo ""
+cd C:/TecsysDev/javaguru/projects/cloudspace/cloudlab2020/mssc-cloud/mssc-beer-service/src/main/docker/local
+echo "2. Stop all container(s) ... "
+docker-compose down -v --remove-orphans
+echo ""
+echo "3. Delete all Container(s) ... "
 docker rm -f "$(docker ps -a -q)"
+echo ""
+echo "4. Delete all volume(s) ... "
 docker volume rm "$(docker volume ls -q)"
+echo ""

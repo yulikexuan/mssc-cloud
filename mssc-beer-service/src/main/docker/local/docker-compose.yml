@@ -33,5 +33,16 @@ services:
       - jms
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      SPRING-ARTEMIS-HOST: jms
+      SPRING_ARTEMIS_HOST: jms
       # SPRING-DATASOURCE-URL: jdbc:postgresql://host.docker.internal:5432/beer_inventory_service?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+  inventory-failover:
+    image: yulcloud/mssc-inventory-failover
+    ports:
+      - 8084:8084
+    depends_on:
+      - eureka
+      - config
+      - jms
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_ARTEMIS_HOST: jms

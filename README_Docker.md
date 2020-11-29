@@ -2,8 +2,8 @@
 
 1.  Stop the container(s)
 
-    ``` docker-compose -f <DOCKER-COMPOSE FILE NAME> down -v --remove-orphans ```
-    ``` docker-compose down -v --remove-orphans ```
+    - ``` docker-compose -f <DOCKER-COMPOSE FILE NAME> down -v --remove-orphans ```
+    - ``` docker-compose down -v --remove-orphans ```
    
 2.  Delete all Containers
 
@@ -15,9 +15,8 @@
 
 4.  Restart the containers using the following command:
 
-    ``` docker-compose -f <DOCKER-COMPOSE FILE NAME> up -d ```
-
-    ``` docker-compose up -d ```
+    - ``` docker-compose -f <DOCKER-COMPOSE FILE NAME> up -d ```
+    - ``` docker-compose up -d ```
 
 ### Using Spring Boot Docker Layers
 
