@@ -6,6 +6,21 @@ services:
       - 9200:9200
     environment:
       discovery.type: single-node
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.10.0
+    ports:
+      - 5601:5601
+    restart: on-failure
+    depends_on:
+      - elasticsearch
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.7.0
+    volumes:
+      - ./filebeat/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml:ro # Configuration file, ro: readonly
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro           # Docker logs, ro: readonly
+      - /var/run/docker.sock:/var/run/docker.sock:ro                       # Additional information about containers, ro: readonly
+    user: root                                                             # Allow access to log files and docker.sock
+    restart: on-failure
   jms:
     image: vromero/activemq-artemis
     ports:
@@ -43,6 +58,8 @@ services:
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
       # SPRING-DATASOURCE-URL: jdbc:postgresql://host.docker.internal:5432/beer_inventory_service?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
     restart: on-failure
+    labels:
+      collect_logs_with_filebeat: "true"
   inventory-failover:
     image: yulcloud/mssc-inventory-failover
     ports:
@@ -72,6 +89,8 @@ services:
       SFG_BREWERY_BEER-INVENTORY-SERVICE-HOST: http://inventory-service:8083
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
     restart: on-failure
+    labels:
+      collect_logs_with_filebeat: "true"
   order-service:
     image: yulcloud/mssc-beer-order-service
     ports:
@@ -90,6 +109,8 @@ services:
       SFG_BREWERY_BEER-SERVICE-HOST: http://beer-service:8081
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
     restart: on-failure
+    labels:
+      collect_logs_with_filebeat: "true"
   # gateway does not use config server
   gateway:
     image: yulcloud/mssc-brewery-gateway
@@ -106,3 +127,5 @@ services:
       SPRING_PROFILES_ACTIVE: docker
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
     restart: on-failure
+    labels:
+      collect_logs_with_filebeat: "true"
