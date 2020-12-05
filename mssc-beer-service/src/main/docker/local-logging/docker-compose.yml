@@ -14,7 +14,8 @@ services:
     depends_on:
       - elasticsearch
   filebeat:
-    image: docker.elastic.co/beats/filebeat:7.7.0
+    image: docker.elastic.co/beats/filebeat:7.10.0
+    command: filebeat -e -strict.perms=false
     volumes:
       - ./filebeat/filebeat.docker.yml:/usr/share/filebeat/filebeat.yml:ro # Configuration file, ro: readonly
       - /var/lib/docker/containers:/var/lib/docker/containers:ro           # Docker logs, ro: readonly
@@ -58,8 +59,14 @@ services:
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
       # SPRING-DATASOURCE-URL: jdbc:postgresql://host.docker.internal:5432/beer_inventory_service?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
     restart: on-failure
+    # A label is a key-value pair, stored as a string
+    # You can specify multiple labels for an object, but each key-value pair
+    # must be unique within an object
+    # If the same key is given multiple values, the most-recently-written value
+    # overwrites all previous values
     labels:
       collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
   inventory-failover:
     image: yulcloud/mssc-inventory-failover
     ports:
@@ -91,6 +98,7 @@ services:
     restart: on-failure
     labels:
       collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
   order-service:
     image: yulcloud/mssc-beer-order-service
     ports:
@@ -111,6 +119,7 @@ services:
     restart: on-failure
     labels:
       collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
   # gateway does not use config server
   gateway:
     image: yulcloud/mssc-brewery-gateway
@@ -129,3 +138,4 @@ services:
     restart: on-failure
     labels:
       collect_logs_with_filebeat: "true"
+      decode_log_event_to_json_object: "true"
